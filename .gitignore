@@ -1,0 +1,12 @@
+windows
+macos
+ios
+linux
+android
+web
+build
+
+.dart_tool
+.metadata
+.idea
+pubspec.lock
