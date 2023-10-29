@@ -3,12 +3,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:warx_flutter/layout/hexagon_layout.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/resources/svgloader/svg_color_mapper.dart';
+import 'package:warx_flutter/util/game.buildcontext.extension.dart';
+import 'package:warx_flutter/util/state.extension.dart';
 import 'package:warx_flutter/widgets/game_header.dart';
 
 import 'widgets/game_ban_pick.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    Provider.value(value:  GameController(),)
+  ], child: const MyApp(),));
 }
 
 class MyApp extends StatelessWidget {
@@ -64,31 +69,39 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  GameController controller = GameController();
   PictureInfo? pictureInfo;
   @override
-  void initState() { 
-    super.initState(); 
-    vg.loadPicture(SvgAssetLoader("assets/images/map_base_circle.svg",), null).then((value) {
+  void initState() {
+    super.initState();
+    vg
+        .loadPicture(
+            SvgAssetLoader(
+              "assets/images/map_base_circle.svg",
+            ),
+            null)
+        .then((value) {
       pictureInfo = value;
-      setState(() {
-        
-      });
+      setState(() {});
     });
   }
- 
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold( 
+    context.game.setRefresh(() {
+      setStateIfMounted();
+    });
+    return Scaffold(
       body: Stack(
-          children: <Widget>[
-            HexagonContainer(width: size.width, height:  size.height, mapBaseCircleInfo:pictureInfo),
-            GameHeader(controller:controller),
-            // GameBanPick(controller:controller)
-          ],
-        ), // This trailing comma makes auto-formatting nicer for build methods.
+        children: <Widget>[
+          HexagonContainer(
+              width: size.width,
+              height: size.height,
+              mapBaseCircleInfo: pictureInfo),
+          GameHeader(controller: context.read<GameController>()),
+          if (context.game.currentTurn == GameTurn.banpick) GameBanPick(controller: context.read<GameController>())
+        ],
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

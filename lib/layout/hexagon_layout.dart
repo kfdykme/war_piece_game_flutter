@@ -176,7 +176,7 @@ class HexagonMapPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size canvasSize) {
     final safeSize = getSafeSize(size ?? Size.zero, canvasSize);
-    logD("paint $safeSize ${originNode.locationOffset}");
+    // logD("paint $safeSize ${originNode.locationOffset}");
     // 1. translate
     canvas.translate(safeSize.width / 2, safeSize.height / 2);
 
