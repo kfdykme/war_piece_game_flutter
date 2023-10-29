@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:warx_flutter/util/log.object.extension.dart';
 
+
 /// 360 / 6 = 60
 /// 60 / 2 =30
 /// 60 度的等腰三角形 就是等边三角形
@@ -42,7 +43,7 @@ class LayoutNode {
       
 
        sroundNodeOffsets.add(Offset(0, heightOffset * 2) + locationOffset);
-       logD("_init $id ${sroundNodeOffsets.first} $locationOffset");
+      //  logD("_init $id ${sroundNodeOffsets.first} $locationOffset");
        sroundNodeOffsets.add(Offset(1.5 * radius, heightOffset ) + locationOffset);
        sroundNodeOffsets.add(Offset(radius * 1.5, -1 * heightOffset) + locationOffset);
        sroundNodeOffsets.add(Offset(0,-2 * heightOffset) + locationOffset);
