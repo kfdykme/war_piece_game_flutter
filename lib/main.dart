@@ -6,6 +6,7 @@ import 'package:warx_flutter/resources/svgloader/svg_color_mapper.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/state.extension.dart';
 import 'package:warx_flutter/widgets/game_header.dart';
+import 'package:warx_flutter/widgets/game_player_info.dart';
 
 import 'widgets/game_ban_pick.dart';
 import 'package:provider/provider.dart';
@@ -100,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mapBaseCircleInfo: pictureInfo),
           GameHeader(controller: context.read<GameController>()),
           if (context.game.currentTurn == GameTurn.banpick) GameBanPick(controller: context.read<GameController>())
+          else if (context.game.currentTurn == GameTurn.game) GamePlayerInfoContainer()
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

@@ -160,6 +160,20 @@ class HexagonMapPainter extends CustomPainter {
     }
     path.close();
     canvas.drawPath(path, Paint()..color = hexagonColor);
+
+    // Path shadowPath = Path();
+    // final ps = [2,3,4];
+    // shadowPath.moveTo(node.arcNodeOffsets[ps.first].dx, node.arcNodeOffsets[ps.first].dy);
+    // for(var index in ps){
+    //   var location = node.arcNodeOffsets[index];
+    //    shadowPath.lineTo(location.dx, location.dy);
+    // }
+    // for(var index in ps.reversed) {
+      
+    //   var location = node.arcNodeOffsets[index];
+    //    shadowPath.lineTo(location.dx, location.dy);
+    // }
+    // canvas.drawPath(shadowPath,Paint()..color = Colors.black ..strokeWidth = 3);
     if (kDebugMode) {
       // var builder = ParagraphBuilder(ParagraphStyle(
       //     fontSize: 8, textHeightBehavior: TextHeightBehavior()))
