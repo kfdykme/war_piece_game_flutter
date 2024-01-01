@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
+import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/size.buildcontext.extension.dart';
 
 class GamePlayerInfoContainer extends StatefulWidget {
@@ -17,13 +19,17 @@ class GamePlayerInfoContainterState extends State<GamePlayerInfoContainer> {
     return Container(width: size.width, height: size.height, child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GamePlayerInfoSingleItem(),
-        GamePlayerInfoSingleItem(),
+        GamePlayerInfoSingleItem(context.game.playerA),
+        GamePlayerInfoSingleItem(context.game.playerB),
       ],) ,);
   }
 }
 
 class GamePlayerInfoSingleItem extends StatefulWidget{
+
+  final PlayerInfo info;
+  GamePlayerInfoSingleItem(this.info);
+
   @override
   State<StatefulWidget> createState() {
     return GamePlayerInfoSingleItemState();
