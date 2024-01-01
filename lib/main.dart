@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:warx_flutter/layout/hexagon_layout.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
+import 'package:warx_flutter/resources/resource_manager.dart';
 import 'package:warx_flutter/resources/svgloader/svg_color_mapper.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/state.extension.dart';
@@ -71,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   PictureInfo? pictureInfo;
+  bool isReady = false;
   @override
   void initState() {
     super.initState();
@@ -84,6 +86,12 @@ class _MyHomePageState extends State<MyHomePage> {
       pictureInfo = value;
       setState(() {});
     });
+
+    ResourceManager.i.loadImage();
+    ResourceManager.i.ready.then((value) {
+      isReady = true;
+      setStateIfMounted();
+    });
   }
 
   @override
@@ -92,6 +100,9 @@ class _MyHomePageState extends State<MyHomePage> {
     context.game.setRefresh(() {
       setStateIfMounted();
     });
+    if (!isReady) {
+      return CircularProgressIndicator();
+    }
     return Scaffold(
       body: Stack(
         children: <Widget>[

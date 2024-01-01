@@ -23,7 +23,7 @@ class BanPickGameState with NextTurnMixin {
 
   int stateIndex = 0;
 
-  List<int> ban = [];
+  List<int> banedItemLists = [];
   List<int> playerASelected = [];
   List<int> playerBSelected = [];
   BanPickGameState() {
@@ -50,8 +50,8 @@ class BanPickGameState with NextTurnMixin {
     logD("onEvent ${event.index}");
     final safeState = innerStates[stateIndex];
     if (safeState.isBan) {
-      logD("onEvent ban");
-      ban.add(event.index);
+      logD("onEvent banedItemLists");
+      banedItemLists.add(event.index);
       stateIndex ++;
     }
     if (!safeState.isBan) {

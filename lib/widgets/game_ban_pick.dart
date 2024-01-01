@@ -1,6 +1,11 @@
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
+import 'package:warx_flutter/resources/chest_resource_manager.dart';
+import 'package:warx_flutter/resources/resource_manager.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/size.buildcontext.extension.dart';
@@ -67,18 +72,14 @@ class GameBanPickItemSate extends State<GameBanPickItem> {
 
   Widget _innerBuildGameBanPickItem(int index) {
 
-    final isBaned = context.game.bp.ban.contains(index);
-
-    if (isBaned) {
-      return Container(
-      margin: EdgeInsets.all(16), );
-    }
+    final isBaned = context.game.bp.banedItemLists.contains(index);
+ 
 
     final isSelectedByA = context.game.bp.playerASelected.contains(index);
     final isSelectedByB = context.game.bp.playerBSelected.contains(index);
 
     Color borderColor = Colors.white;
-    double borderWidth = 2;
+    double borderWidth = 8;
     PlayerInfo? selectedPlayerInfo;
     if (isSelectedByA) {
       borderColor = context.game.playerA.color;
@@ -96,13 +97,18 @@ class GameBanPickItemSate extends State<GameBanPickItem> {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border:  Border.all(color: borderColor, width: borderWidth, ),
-          color: Color(0).randomColor()),
+          color: isBaned ? Colors.red : Color(0).randomColor()),
       child: MaterialButton(onPressed: () {
-        context.game.onBanPickEvent(BanPickEvent(index));
-        setStateIfMounted();
+        if (!isBaned) {
+          context.game.onBanPickEvent(BanPickEvent(index));
+          setStateIfMounted();
+        }
       }, child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: [if (selectedPlayerInfo != null) _buildSelectedPlayerInfo(selectedPlayerInfo)],
+        children: [if (selectedPlayerInfo != null) _buildSelectedPlayerInfo(selectedPlayerInfo),
+          if (isBaned) _buildBandInfo(),
+          _buildIcon(index)
+         ],
       ),),
     );
   }
@@ -116,4 +122,25 @@ class GameBanPickItemSate extends State<GameBanPickItem> {
     );
   }
   
+  Widget _buildBandInfo() {
+    return Text("Baned");
+  }
+  
+  Widget _buildIcon(int index) {
+
+    
+    return Container(
+      width: 100,
+      height: 100,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.memory(ChestResourceManager.i.chestDataByIndex(index),
+      fit: BoxFit.cover, ),
+      ),
+    
+      // child: Image.asset('resources/kenney_1-bit-pack/Tilemap/tileset_legacy.png',
+      // fit: BoxFit.none,),
+    );
+  }
 }
+
