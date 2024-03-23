@@ -24,7 +24,9 @@ class ChestResourceManager {
     // final y = Random().nextInt(9) + 1;   
     y += 1;
     x += 24 + 1;
-    
+
     return ResourceManager.i.getImage(x, y);
   }
+
+  
 }

@@ -1,6 +1,9 @@
 
 
+import 'dart:math';
+
 import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
+import 'package:warx_flutter/maingame/map/hexagon_map.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/state/ban_pick_state.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
@@ -16,11 +19,19 @@ class GameController {
   GameTurn currentTurn = GameTurn.beforestart;
   BanPickGameState bp = BanPickGameState();
   Function? onRefresh;
+
+  static bool dev_is_skip_bp = true;
+
+  HexagonMap map = HexagonMap();
+
   GameController() {
     _init();
   }
 
   void _init() {
+
+    map.bindController(this);
+
     currentTurn = nextTurn(currentTurn); 
     start();
   }
@@ -28,10 +39,26 @@ class GameController {
   start() {
     if (currentTurn == GameTurn.banpick) {
       bp.setNextTurnCallback(() {
+        // fill player info
+
+        playerA.fillPieces(bp.playerASelected);
+        playerB.fillPieces(bp.playerBSelected); 
+        playerA.bindNotifyUI(playerA.notifyRefresh);
+        playerB.bindNotifyUI(playerB.notifyRefresh);
         currentTurn = GameTurn.game;
         onRefresh?.call();
       });
-      bp.start();
+      if (!dev_is_skip_bp) {
+        bp.start();
+      } else {
+        playerA.fillPieces([0,1,2,3]);
+        playerB.fillPieces([4,5,6,7]);
+        playerA.bindNotifyUI(playerA.notifyRefresh);
+        playerB.bindNotifyUI(playerB.notifyRefresh);
+        
+        currentTurn = GameTurn.game;
+        onRefresh?.call();
+      }
     }
   }
 

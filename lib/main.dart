@@ -71,21 +71,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  PictureInfo? pictureInfo;
   bool isReady = false;
   @override
   void initState() {
     super.initState();
-    vg
-        .loadPicture(
-            SvgAssetLoader(
-              "assets/images/map_base_circle.svg",
-            ),
-            null)
-        .then((value) {
-      pictureInfo = value;
-      setState(() {});
-    });
 
     ResourceManager.i.loadImage();
     ResourceManager.i.ready.then((value) {
@@ -101,15 +90,18 @@ class _MyHomePageState extends State<MyHomePage> {
       setStateIfMounted();
     });
     if (!isReady) {
-      return CircularProgressIndicator();
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
     return Scaffold(
       body: Stack(
         children: <Widget>[
           HexagonContainer(
               width: size.width,
-              height: size.height,
-              mapBaseCircleInfo: pictureInfo),
+              height: size.height),
           GameHeader(controller: context.read<GameController>()),
           if (context.game.currentTurn == GameTurn.banpick) GameBanPick(controller: context.read<GameController>())
           else if (context.game.currentTurn == GameTurn.game) GamePlayerInfoContainer()

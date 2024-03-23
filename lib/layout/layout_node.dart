@@ -3,6 +3,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 
@@ -22,6 +23,8 @@ class LayoutNode {
     List<Offset> sroundNodeOffsets = [];
     List<Offset> arcNodeOffsets = [];
     Offset locationOffset;
+
+    BasicPiece? piece;
  
     late int id;
 
@@ -29,9 +32,37 @@ class LayoutNode {
 
     bool get isImportantNode => [60, 44, 108,6, 35,89,3,76,69,14].where((e) => e == id).isNotEmpty;
 
+    bool get isPlayerABasicImportant => [60, 44].where((element) => element == id).isNotEmpty;
+
+    bool get isPlayerBBasicImportant => [89, 76].where((element) => element == id).isNotEmpty;
+
+    bool get isClickAble => nextClickCallback != null;
+
+    Function? nextClickCallback;
+
+    void onClick() {
+      if (nextClickCallback != null) {
+        nextClickCallback?.call();
+        nextClickCallback = null;
+      }
+    }
+
+
     LayoutNode(this.radius, { this.locationOffset = Offset.zero}) {
         _init();
+        // isClickAble = Random().nextBool();
     }
+
+    Path get boxPath {
+      
+      Path path = Path();
+      path.moveTo(arcNodeOffsets.first.dx, arcNodeOffsets.first.dy);
+      for (var location in arcNodeOffsets) {
+        path.lineTo(location.dx, location.dy);
+      }
+      path.close();
+      return path;
+    } 
 
     void _init() {
       id = globalId++;

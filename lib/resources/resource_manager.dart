@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 
@@ -40,6 +41,7 @@ class ResourceManager {
   int row = 0;
   int colum = 0;
 
+  late PictureInfo pictureInfo;
   Future<void> loadImage() async {
     File imageFile = File('resources/kenney_1-bit-pack/Tilemap/tileset_legacy.png');
     imageFile.statSync();
@@ -58,6 +60,14 @@ class ResourceManager {
     logD("loadImage row $row column $colum");
     singleImages = [];
     loadSingleImage();
+
+    
+    pictureInfo = await vg
+        .loadPicture(
+            const SvgAssetLoader(
+              "assets/images/map_base_circle.svg",
+            ),
+            null);
   }
 
   Uint8List getImage(x, y){
@@ -71,7 +81,7 @@ class ResourceManager {
     ui.PictureRecorder recorder = ui.PictureRecorder();
     ui.Canvas canvas = ui.Canvas(recorder);
 
-    final padding = 1;
+    final padding = 0;
 
     canvas.drawImageRect(image, ui.Rect.fromLTWH(loadImagePosX * singleImageItemWidth.toDouble() + padding,
     loadImagePosY * singleImageItemHeight.toDouble(), singleImageItemWidth.toDouble(), singleImageItemHeight.toDouble()),

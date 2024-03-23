@@ -1,9 +1,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
+import 'package:warx_flutter/maingame/player/player_info_ui.ext.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/size.buildcontext.extension.dart';
+import 'package:warx_flutter/widgets/chest_item_list.dart';
+import 'package:warx_flutter/widgets/chest_random_info.dart';
+import 'package:warx_flutter/widgets/statefull_widget_update.ext.dart';
 
 class GamePlayerInfoContainer extends StatefulWidget {
   @override
@@ -37,10 +41,44 @@ class GamePlayerInfoSingleItem extends StatefulWidget{
 }
 
 class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
+
+
+     
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.info.bindUpdate((){
+      updateState();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant GamePlayerInfoSingleItem oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    widget.info.bindUpdate(() {
+      updateState();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = context.mSize();
     final width = (size.width - size.height) / 2;
-    return Container(color: Color(0).randomColor(), width: width, height: size.height - 100,);
-  }
+
+    final isCurrentActivePlayer = true; 
+    return Container(color: widget.info.color, width: width, height: size.height - 100,
+    child:
+      Column(children: [
+        // TITLE
+        Text("${widget.info.id} ", style: TextStyle(fontWeight: FontWeight.w600, color: widget.info.color),),
+        // Status 
+        if(isCurrentActivePlayer)Text("正在操作中"),
+        ChestRandomInfo(widget.info),
+        ChestItemList(widget.info)
+      ])
+    ,);
+  } 
 }
