@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:warx_flutter/layout/layout_node.dart';
+import 'package:warx_flutter/resources/chest_resource_manager.dart';
 import 'package:warx_flutter/resources/resource_manager.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
@@ -50,9 +51,34 @@ mixin HexagonDrawExtension {
             Rect.zero,
             Rect.fromLTRB(margin, margin, size - margin, size - margin),
             Paint());
+
       }
       canvas.restoreToCount(safeCount);
     }
+  }
+
+  void drawLocationPiece(LayoutNode node, Canvas canvas) {
+
+    canvas.save();
+    canvas.translate(node.locationOffset.dx - node.heightOffset,
+        node.locationOffset.dy - node.heightOffset);
+    final safePiece = node.piece;
+    if (safePiece != null) {
+      final image = ChestResourceManager.i.getUiImageByIndex(safePiece.index, () {
+        // TODO: NOTIFY REFRESH
+      });
+      if (image != null) {
+        final size = node.heightOffset * 2;
+        final margin = size / 10;
+
+        canvas.drawImageNine(
+            image,
+            Rect.zero,
+            Rect.fromLTRB(margin, margin, size - margin, size - margin),
+            Paint());
+      }
+    }
+    canvas.restore();
   }
 
   void drawHexagon(LayoutNode node, Canvas canvas) {
@@ -65,7 +91,6 @@ mixin HexagonDrawExtension {
     canvas.save();
     canvas.translate(node.locationOffset.dx, node.locationOffset.dy);
     canvas.drawPath(node.boxPath, Paint()..color = currentHexagonColor);
-
     // Path shadowPath = Path();
     // final ps = [2,3,4];
     // shadowPath.moveTo(node.arcNodeOffsets[ps.first].dx, node.arcNodeOffsets[ps.first].dy);
@@ -82,7 +107,7 @@ mixin HexagonDrawExtension {
 
     canvas.restore();
     drawHexagonBaseImage(node, canvas);
-
+    drawLocationPiece(node, canvas);
     if (kDebugMode) {
       canvas.save();
       canvas.translate(node.locationOffset.dx, node.locationOffset.dy);

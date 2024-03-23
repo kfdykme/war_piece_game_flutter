@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:warx_flutter/layout/hexagon_layout.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/resources/resource_manager.dart';
-import 'package:warx_flutter/resources/svgloader/svg_color_mapper.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/state.extension.dart';
 import 'package:warx_flutter/widgets/game_header.dart';
 import 'package:warx_flutter/widgets/game_player_info.dart';
 
 import 'widgets/game_ban_pick.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
