@@ -42,7 +42,7 @@ class LayoutNode {
 
     Future<bool> onClick() {
       if (nextClickCallback != null) {
-        final result = nextClickCallback?.call();
+        final result = nextClickCallback?.call() ?? false;
         nextClickCallback = null;
         return Future.value(result);
       }

@@ -34,7 +34,7 @@ class ReactableHexagonLayout extends State<HexagonContainer>{
     });
     context.game.playerB.bindUpdate(() {
       setStateIfMounted();
-    });
+    }); 
   }
 
   Map<Offset,LayoutNode> get nodes {

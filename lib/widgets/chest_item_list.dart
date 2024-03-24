@@ -47,7 +47,7 @@ class ChestItemListState extends State<ChestItemList> {
         final size = 40.0;
       return MaterialButton(onPressed: () {
         if (context.game.currentPlayer == widget.info) {
-          widget.info.onClickPiece(piece).then((value) {
+          widget.info.onClickPiece(piece, context.game).then((value) {
             if (value) {
               context.game.nextPlayer();
               

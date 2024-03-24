@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:warx_flutter/layout/layout_node.dart';
+import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/maingame/piece/gloden_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
@@ -15,8 +16,11 @@ mixin PlayerInfoLogic {
   List<LayoutNode> importantNodes = [];
   Function? nextSkipCallback;
 
-  Future<bool> onClickPiece(BasicPiece piece) async {
+  Future<bool> onClickPiece(BasicPiece piece, GameController gameController) async {
     logD('onClickPiece $piece');
+    
+    cancelOtherAllClickableEvent(gameController);
+    notifyUI(); 
     if (piece is GlodenPiece) {
        logD("onClickGlodenPiece $piece");
        return false;
@@ -40,7 +44,7 @@ mixin PlayerInfoLogic {
               comsumePiece(piece);
               result = true;
             }
-            cancelOtherAllClickableEvent();
+            cancelOtherAllClickableEvent(gameController);
             notifyUI();
             return result;
           };
@@ -54,7 +58,7 @@ mixin PlayerInfoLogic {
            selectAble.nextClickCallback = () {
             selectAble.currentAllowCount++;
             comsumePiece(piece);
-            cancelOtherAllClickableEvent();
+            cancelOtherAllClickableEvent(gameController);
             notifyUI(); 
             return true;
           };
@@ -65,10 +69,20 @@ mixin PlayerInfoLogic {
       // NOTE: Skip
       nextSkipCallback = () {
           comsumePiece(piece);
-          cancelOtherAllClickableEvent();
+          cancelOtherAllClickableEvent(gameController);
           notifyUI(); 
           return true;
       };
+
+      piece.Move(gameController).then((value) {
+        if (value) {
+          
+          comsumePiece(piece);
+          cancelOtherAllClickableEvent(gameController);
+          notifyUI(); 
+        }
+        clickComsumePieceCompleter.safeComplete(value);
+      });
       
       notifyUI();
       return clickComsumePieceCompleter.future;
@@ -77,11 +91,14 @@ mixin PlayerInfoLogic {
     return false;
   }
 
-  void cancelOtherAllClickableEvent() {
+  void cancelOtherAllClickableEvent(GameController gameController) {
 
       importantNodes.forEach((element) {element.nextClickCallback = null;});
       selectAbleItem.forEach((element) {element.nextClickCallback = null;});
       nextSkipCallback = null;
+      gameController.map.nodes.entries.forEach((element) {
+        element.value.nextClickCallback = null;
+      });
   }
 
   void comsumePiece(BasicPiece piece) {

@@ -44,7 +44,7 @@ class ChestRandomInfoState extends State<ChestRandomInfo> {
 
     bool enableClick = piece.nextClickCallback != null;
     return GestureDetector(onTap: () {
-      final comsumePiece =  piece.nextClickCallback?.call();
+      final comsumePiece =  piece.nextClickCallback?.call() ?? false;
       if (comsumePiece) {
         context.game.nextPlayer();
       }
