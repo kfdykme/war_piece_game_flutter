@@ -40,11 +40,13 @@ class LayoutNode {
 
     Function? nextClickCallback;
 
-    void onClick() {
+    Future<bool> onClick() {
       if (nextClickCallback != null) {
-        nextClickCallback?.call();
+        final result = nextClickCallback?.call();
         nextClickCallback = null;
+        return Future.value(result);
       }
+      return Future.value(false);
     }
 
 

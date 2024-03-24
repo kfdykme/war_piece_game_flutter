@@ -1,32 +1,56 @@
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/maingame/piece/gloden_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
+import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 mixin PlayerInfoLogic {
 
   List<LayoutNode> importantNodes = [];
 
-  void onClickPiece(BasicPiece piece) {
+  Future<bool> onClickPiece(BasicPiece piece) async {
     logD('onClickPiece $piece');
     if (piece is GlodenPiece) {
        logD("onClickGlodenPiece $piece");
+       return false;
     } else {
       //
-
+      Completer<bool> clickComsumePieceCompleter = Completer();
       importantNodes.forEach((element) {
         element.nextClickCallback = () {
-          logD("add to here");
-          element.piece = piece;
+          var result = false;
+          if (element.piece != null) {
+            logD("already has piece here");
+            clickComsumePieceCompleter.safeComplete(false);
+          } else {
+            logD("add to here");
+            element.piece = piece;
+            clickComsumePieceCompleter.safeComplete(true);
+            comsumePiece(piece);
+            result = true;
+          }
           importantNodes.forEach((element) {element.nextClickCallback = null;});
-      notifyUI();
+          notifyUI();
+          return result;
         };
       });
       notifyUI();
+      return clickComsumePieceCompleter.future;
+    }
+
+    return false;
+  }
+
+  void comsumePiece(BasicPiece piece) {
+    final hitPiece = selectAbleItem.where((element) => element.index == piece.index).firstOrNull;
+
+    if (hitPiece != null) {
+      hitPiece.currentHandCount--;
     }
   }
 

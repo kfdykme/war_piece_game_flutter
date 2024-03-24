@@ -49,7 +49,12 @@ class ReactableHexagonLayout extends State<HexagonContainer>{
         if (hitNode != null) {
           logD("$hitNode");
           // hitNode.isClickAble = !hitNode.isClickAble;
-          hitNode.onClick();
+          hitNode.onClick().then((comsumePiece) {
+            if (comsumePiece) {
+
+            }
+          });
+
           setStateIfMounted();
         } else {
           // hitOffsets.add(details.globalPosition);
