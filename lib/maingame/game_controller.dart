@@ -24,6 +24,8 @@ class GameController {
 
   HexagonMap map = HexagonMap();
 
+  PlayerInfo? currentPlayer;
+
   GameController() {
     _init();
   }
@@ -57,9 +59,23 @@ class GameController {
         playerB.bindNotifyUI(playerB.notifyRefresh);
         
         currentTurn = GameTurn.game;
+        nextPlayer();
         onRefresh?.call();
       }
     }
+  }
+
+  void nextPlayer() {
+    if (currentPlayer == null) {
+      // TODO: 默认开始
+      currentPlayer = playerA;
+    } else if (currentPlayer == playerA){
+      currentPlayer = playerB;
+    } else if (currentPlayer == playerB) {
+      currentPlayer = playerA;
+    }
+    playerA.notifyRefresh();
+    playerB.notifyRefresh();
   }
 
   void onBanPickEvent(BanPickEvent event) {

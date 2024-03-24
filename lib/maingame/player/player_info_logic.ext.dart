@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/maingame/piece/gloden_piece.dart';
@@ -12,6 +13,7 @@ import 'package:warx_flutter/util/log.object.extension.dart';
 mixin PlayerInfoLogic {
 
   List<LayoutNode> importantNodes = [];
+  Function? nextSkipCallback;
 
   Future<bool> onClickPiece(BasicPiece piece) async {
     logD('onClickPiece $piece');
@@ -22,23 +24,52 @@ mixin PlayerInfoLogic {
       //
       Completer<bool> clickComsumePieceCompleter = Completer();
       importantNodes.forEach((element) {
-        element.nextClickCallback = () {
-          var result = false;
-          if (element.piece != null) {
-            logD("already has piece here");
-            clickComsumePieceCompleter.safeComplete(false);
-          } else {
-            logD("add to here");
-            element.piece = piece;
-            clickComsumePieceCompleter.safeComplete(true);
-            comsumePiece(piece);
-            result = true;
-          }
-          importantNodes.forEach((element) {element.nextClickCallback = null;});
-          notifyUI();
-          return result;
-        };
+        // NOTE: 1. 
+        if ((element.piece == null && piece.hp ==0) || element.piece == piece) {
+          element.nextClickCallback = () {
+            var result = false;
+            if (element.piece != null && element.piece != piece) {
+              logD("already has piece here");
+              clickComsumePieceCompleter.safeComplete(false);
+            } else {
+              logD("add to here");
+              piece.hp += 1;
+              element.piece = piece;
+
+              clickComsumePieceCompleter.safeComplete(true);
+              comsumePiece(piece);
+              result = true;
+            }
+            cancelOtherAllClickableEvent();
+            notifyUI();
+            return result;
+          };
+        }
       });
+
+      // NOTE: 招募
+      selectAbleItem.forEach((selectAble) {
+        if (selectAble.currentAllowCount + selectAble.currentHandCount < selectAble.maxAllowCount) {
+
+           selectAble.nextClickCallback = () {
+            selectAble.currentAllowCount++;
+            comsumePiece(piece);
+            cancelOtherAllClickableEvent();
+            notifyUI(); 
+            return true;
+          };
+        }
+      }
+      );
+
+      // NOTE: Skip
+      nextSkipCallback = () {
+          comsumePiece(piece);
+          cancelOtherAllClickableEvent();
+          notifyUI(); 
+          return true;
+      };
+      
       notifyUI();
       return clickComsumePieceCompleter.future;
     }
@@ -46,13 +77,23 @@ mixin PlayerInfoLogic {
     return false;
   }
 
+  void cancelOtherAllClickableEvent() {
+
+      importantNodes.forEach((element) {element.nextClickCallback = null;});
+      selectAbleItem.forEach((element) {element.nextClickCallback = null;});
+      nextSkipCallback = null;
+  }
+
   void comsumePiece(BasicPiece piece) {
     final hitPiece = selectAbleItem.where((element) => element.index == piece.index).firstOrNull;
 
     if (hitPiece != null) {
       hitPiece.currentHandCount--;
+      hitPiece.disableCount++;
     }
   }
+
+
 
   Function? ui;
 

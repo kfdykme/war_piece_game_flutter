@@ -17,6 +17,7 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic {
 
 
   static PlayerInfo? playerInfoA;
+
   static PlayerInfo get playerA  {
     return playerInfoA ??= PlayerInfo(playerAId);
   }
@@ -39,6 +40,8 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic {
       color = Color.fromARGB(0, 129, 111, 111).randomColor().withAlpha(255);
     }
   }
+
+
 
 
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/resources/resource_manager.dart';
+import 'package:warx_flutter/util/game.buildcontext.extension.dart';
+import 'package:warx_flutter/util/log.object.extension.dart';
 import 'package:warx_flutter/widgets/builder/chest_item_builder.dart';
 
 class ChestRandomInfo extends StatefulWidget {
@@ -39,15 +41,25 @@ class ChestRandomInfoState extends State<ChestRandomInfo> {
   Widget _buildPiece(BasicPiece piece) {
     final size = 24.0;
 
-    return Flex(
+
+    bool enableClick = piece.nextClickCallback != null;
+    return GestureDetector(onTap: () {
+      final comsumePiece =  piece.nextClickCallback?.call();
+      if (comsumePiece) {
+        context.game.nextPlayer();
+      }
+      logD("on pay piece $comsumePiece");
+    },child: Container(
+      color: enableClick ? Colors.tealAccent : null,
+      child:  Flex(
       direction: Axis.horizontal,
       mainAxisSize: MainAxisSize.min,
       children: [
         piece.index == -1 ? ChestItemBuilder().buildIconWithData(
           ResourceManager.i.getImage(10, 25)
           , size: size) : ChestItemBuilder().buildIcon(piece.index, size: size),
-        Text(" x ${piece.currentAllowCount} ")
+        Text(" x ${enableClick ? piece.enableEmpolyCount : piece.currentAllowCount} ")
       ],
-    );
+    ),),);
   }
 }

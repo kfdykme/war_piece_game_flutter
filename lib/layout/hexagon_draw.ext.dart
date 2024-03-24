@@ -76,9 +76,22 @@ mixin HexagonDrawExtension {
             Rect.zero,
             Rect.fromLTRB(margin, margin, size - margin, size - margin),
             Paint());
+        
       }
     }
     canvas.restore();
+    
+    if (safePiece != null) {
+      canvas.save();
+      canvas.translate(node.locationOffset.dx, node.locationOffset.dy);
+      var builder = ParagraphBuilder(
+          ParagraphStyle(fontSize: 16, textHeightBehavior: TextHeightBehavior()))
+        ..addText("${safePiece.hp}");
+      canvas.drawParagraph(
+          builder.build()..layout(ParagraphConstraints(width: 200)),
+          Offset.zero);
+      canvas.restore();
+    }
   }
 
   void drawHexagon(LayoutNode node, Canvas canvas) {
@@ -108,16 +121,16 @@ mixin HexagonDrawExtension {
     canvas.restore();
     drawHexagonBaseImage(node, canvas);
     drawLocationPiece(node, canvas);
-    if (kDebugMode) {
-      canvas.save();
-      canvas.translate(node.locationOffset.dx, node.locationOffset.dy);
-      var builder = ParagraphBuilder(
-          ParagraphStyle(fontSize: 16, textHeightBehavior: TextHeightBehavior()))
-        ..addText("${node.id}");
-      canvas.drawParagraph(
-          builder.build()..layout(ParagraphConstraints(width: 200)),
-          Offset.zero);
-      canvas.restore();
-    }
+    // if (kDebugMode) {
+    //   canvas.save();
+    //   canvas.translate(node.locationOffset.dx, node.locationOffset.dy);
+    //   var builder = ParagraphBuilder(
+    //       ParagraphStyle(fontSize: 16, textHeightBehavior: TextHeightBehavior()))
+    //     ..addText("${node.id}");
+    //   canvas.drawParagraph(
+    //       builder.build()..layout(ParagraphConstraints(width: 200)),
+    //       Offset.zero);
+    //   canvas.restore();
+    // }
   }
 }

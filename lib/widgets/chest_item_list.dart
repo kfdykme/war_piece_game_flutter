@@ -29,7 +29,10 @@ class ChestItemListState extends State<ChestItemList> {
   Widget build(BuildContext context) {
 
     final list = widget.info.selectAbleItem.where((element) => element.currentHandCount>0).toList();
- 
+    if (list.isEmpty) {
+      widget.info.getNextRandomPieces(); 
+      Future.delayed( Duration.zero).then((value) => widget.info.notifyRefresh());
+    }
     return  ListView.separated(
       shrinkWrap: true,
       itemBuilder: (context, index) {
@@ -43,7 +46,14 @@ class ChestItemListState extends State<ChestItemList> {
         final piece = list[index];
         final size = 40.0;
       return MaterialButton(onPressed: () {
-          widget.info.onClickPiece(piece);
+        if (context.game.currentPlayer == widget.info) {
+          widget.info.onClickPiece(piece).then((value) {
+            if (value) {
+              context.game.nextPlayer();
+              
+            }
+          });
+        }
       }, child: Container(
         child:
         Row(children: [
@@ -58,6 +68,6 @@ class ChestItemListState extends State<ChestItemList> {
       );
     }, separatorBuilder: (context, index) {
       return Container();
-    }, itemCount: list.length + 1);
+    }, itemCount: list.length );
   }
 }

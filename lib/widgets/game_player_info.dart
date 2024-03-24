@@ -1,11 +1,15 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/player/player_info_ui.ext.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
+import 'package:warx_flutter/util/log.object.extension.dart';
 import 'package:warx_flutter/util/size.buildcontext.extension.dart';
 import 'package:warx_flutter/widgets/chest_item_list.dart';
+import 'package:warx_flutter/widgets/chest_last_item_list.dart';
 import 'package:warx_flutter/widgets/chest_random_info.dart';
 import 'package:warx_flutter/widgets/statefull_widget_update.ext.dart';
 
@@ -68,7 +72,8 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
     final size = context.mSize();
     final width = (size.width - size.height) / 2;
 
-    final isCurrentActivePlayer = true; 
+    final isCurrentActivePlayer = context.game.currentPlayer == widget.info;
+    logD("Player ${widget.info.id} is current $isCurrentActivePlayer");
     return Container(color: widget.info.color, width: width, height: size.height - 100,
     child:
       Column(children: [
@@ -77,7 +82,9 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
         // Status 
         if(isCurrentActivePlayer)Text("正在操作中"),
         ChestRandomInfo(widget.info),
-        ChestItemList(widget.info)
+        ChestItemList(widget.info),
+        Expanded(child: Container()),
+        ChestLastItemList(widget.info)
       ])
     ,);
   } 
