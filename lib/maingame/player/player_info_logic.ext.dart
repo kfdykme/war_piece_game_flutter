@@ -83,6 +83,24 @@ mixin PlayerInfoLogic {
         }
         clickComsumePieceCompleter.safeComplete(value);
       });
+
+      piece.Attack(gameController).then((value) {
+        if (value) {
+          comsumePiece(piece);
+          cancelOtherAllClickableEvent(gameController);
+          notifyUI();
+        }
+        clickComsumePieceCompleter.safeComplete(value);
+      });
+
+      piece.Control(gameController).then((value) {
+        if (value) {
+          comsumePiece(piece);
+          cancelOtherAllClickableEvent(gameController);
+          notifyUI();
+        }
+        clickComsumePieceCompleter.safeComplete(value);
+      });
       
       notifyUI();
       return clickComsumePieceCompleter.future;
@@ -152,6 +170,12 @@ mixin PlayerInfoLogic {
       selectAbleItem[randomIndex].currentAllowCount--;
       selectAbleItem[randomIndex].currentHandCount++;
       return selectAbleItem[randomIndex];
+    }
+
+    if (selectAbleItem.where((element) => element.currentAllowCount> 0).isEmpty) {
+      selectAbleItem.forEach((element) {
+        element.currentAllowCount = element.disableCount - element.gameOutCount; 
+      });
     }
     return _getSingleRandomePiece();
   }

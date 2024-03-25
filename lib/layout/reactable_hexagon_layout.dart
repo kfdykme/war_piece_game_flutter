@@ -10,6 +10,7 @@ import 'package:warx_flutter/layout/hexagon_draw.ext.dart';
 import 'package:warx_flutter/layout/hexagon_layout.dart';
 import 'package:warx_flutter/layout/hexagon_nodes.mixin.dart';
 import 'package:warx_flutter/layout/layout_node.dart';
+import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/resources/chest_resource_manager.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
@@ -77,8 +78,8 @@ class ReactableHexagonLayout extends State<HexagonContainer>{
               final node = entry.value;
               return CustomPaint(
                 
-                painter: SingleHexagonPainter(offset: key, node: node, centerOffset:centerOffset),
-                foregroundPainter: HitTestPainter(offsets: hitOffsets),
+                painter: SingleHexagonPainter(offset: key, node: node, centerOffset:centerOffset, gameController: context.game),
+                foregroundPainter: HitTestPainter(offsets: hitOffsets, gameController: context.game),
                 child: Container(width: 20, height: 20,),
               );
             }).toList() ?? [])
@@ -94,7 +95,10 @@ class HitTestPainter extends CustomPainter {
 
   final List<Offset> offsets;
 
-  HitTestPainter({this.offsets = const []});
+
+  GameController gameController;
+
+  HitTestPainter({this.offsets = const [], required this.gameController});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -124,14 +128,15 @@ class SingleHexagonPainter extends CustomPainter with HexagonDrawExtension  {
   static Color get color2 {
     return _hex2 ??= Color(0).randomColor();
   }
+  GameController gameController;
 
-  SingleHexagonPainter({required this.offset, required this.node, this.centerOffset = Offset.zero}) {
+  SingleHexagonPainter({required this.offset, required this.node, this.centerOffset = Offset.zero, required this.gameController}) {
     initSvg();
     Color imageColor = color2;
-    if (node.isPlayerABasicImportant) {
+    if (node.isPlayerABasicImportant || gameController.playerA.importantNodes.contains(node)) {
       imageColor = PlayerInfo.playerA.color;
     }
-    if (node.isPlayerBBasicImportant) {
+    if (node.isPlayerBBasicImportant|| gameController.playerB.importantNodes.contains(node)) {
       imageColor = PlayerInfo.playerB.color;
     }
     initColor(hexagon: color, image:imageColor,  important: Colors.teal);

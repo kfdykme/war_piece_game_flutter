@@ -11,6 +11,8 @@ class MoveConfig {
   MoveConfig(this.moveRange);
 }
 
+
+
 class BasicPiece {
   final int index;
   final int maxAllowCount;
@@ -42,6 +44,8 @@ class BasicPiece {
       'maxAllowCount':maxAllowCount,
       'currentAllowCount':currentAllowCount,
       'currentHandCount':currentHandCount,
+      'disableCount': disableCount,
+      'gameOutCount': gameOutCount,
     }));
   }
   @override
@@ -58,7 +62,7 @@ class BasicPiece {
   }
 
   Future<bool> Move(GameController game) async {
-    logD("Move ");
+    logD("try Move ");
     final config = GetEnableMoveConfig();
 
     Completer<bool> moveCompleter = Completer();
@@ -67,7 +71,7 @@ class BasicPiece {
     if (layoutNodeEntry != null) {
       // NOTE: 2 获取周围的格子中，可以被移动的格子
       final node = layoutNodeEntry.value;
-      final sroundNodes = game.map.nodes.entries.where((element)  {
+      final sroundNodes = game.map.nodes.entries.where((element) => element.value.piece == null).where((element)  {
         
         // logD("sroundNodes ${element.key} ${ node.sroundNodeOffsets}");
         return node.sroundNodeOffsets.where((sOffset) {
@@ -79,6 +83,7 @@ class BasicPiece {
       logD("sroundNodes ${sroundNodes.length}");
       sroundNodes.forEach((e) {
         e.nextClickCallback = () {
+          logD("Do Move");
           node.piece = null;
           e.piece = this;
           game.onRefresh?.call();
@@ -94,8 +99,77 @@ class BasicPiece {
     return moveCompleter.future;
   }
 
-  void Attack() {
-    logD("Attack ");
+  Future<bool> Attack(GameController game) async {
+    logD("Attack ");  
+    Completer<bool> moveCompleter = Completer();
+     // NOTE: 1 获取当前位置
+    final layoutNodeEntry = game.map.nodes.entries.where((element) => element.value.piece == this).firstOrNull;
+    if (layoutNodeEntry != null) {
+      // NOTE: 2 获取周围的格子中，可以被移动的格子
+      final node = layoutNodeEntry.value;
+      
+      // NOTE: 3 找到对应的玩家
+      final player =  game.playerA.selectAbleItem.where((element) => element == this).isNotEmpty ? game.playerA : game.playerB;
+      
+      
+      final sroundNodes = game.map.nodes.entries.where((element) => element.value.piece != null && !player.selectAbleItem.contains(element.value.piece)).where((element)  {
+        
+        // logD("sroundNodes ${element.key} ${ node.sroundNodeOffsets}");
+        return node.sroundNodeOffsets.where((sOffset) {
+          final comResult = sOffset - element.key;
+          // logD("sroundNodes $comResult");
+          return comResult.distance < 10;
+        }).isNotEmpty;
+      }).map((e) => e.value);
+      logD("sroundNodes ${sroundNodes.length}");
+
+
+      sroundNodes.forEach((e) {
+        e.nextClickCallback = () {
+          logD("Attack");
+          final piece = e.piece;
+          if (piece != null) {
+
+            piece.hp-= hp;
+            piece.gameOutCount++;
+            if (piece.hp <= 0) {
+              piece.hp = 0;
+              e.piece = null;
+            }
+          } 
+          game.onRefresh?.call(); 
+          moveCompleter.safeComplete(true);
+        };
+      });
+      logD("${ game.map.nodes.entries.where((e) { return e.value.nextClickCallback != null; })}");
+      game.onRefresh?.call();
+    } else {
+      logE("without piece $this in map");
+    }
+    return moveCompleter.future;
+  }
+
+  Future<bool> Control(GameController gameController)  {
+    Completer<bool> completer = Completer();
+    final layoutNodeEntry = gameController.map.nodes.entries.where((element) => element.value.piece == this).firstOrNull;
+    if (layoutNodeEntry != null) {
+      if (layoutNodeEntry.value.isImportantNode ) {
+        // NOTE: 3 找到对应的玩家
+        final player =  gameController.playerA.selectAbleItem.where((element) => element == this).isNotEmpty ? gameController.playerA : gameController.playerB;
+        if (!player.importantNodes.contains(layoutNodeEntry.value)) {
+
+          layoutNodeEntry.value.nextClickCallback = () {
+            logD("Do Control");
+                
+            
+            player.importantNodes.add(layoutNodeEntry.value);
+            gameController.onRefresh?.call();
+            completer.safeComplete(true);
+          };
+        }
+      }
+    }
+    return completer.future;
   }
 
   void Skill() {
