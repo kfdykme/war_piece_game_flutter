@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -15,8 +14,6 @@ class MoveConfig {
   MoveConfig(this.moveRange);
 }
 
-
-
 class BasicPiece {
   final int index;
   final int maxAllowCount;
@@ -31,58 +28,67 @@ class BasicPiece {
   String name;
 
   Function? nextClickCallback;
-  BasicPiece({
-    required this.index ,
-    this.maxAllowCount = 5,
-    this.currentAllowCount = 0,
-    this.name = ''
-  }) {
+  BasicPiece(
+      {required this.index,
+      this.maxAllowCount = 5,
+      this.currentAllowCount = 0,
+      this.name = ''}) {
     this.name = this.name.isEmpty ? '$index' : this.name;
   }
- 
 
-  static BasicPiece build({
-    required index ,
-    maxAllowCount = 5,
-    currentAllowCount = 0,
-    name = ''
-  }) {
+  static BasicPiece build(
+      {required index, maxAllowCount = 5, currentAllowCount = 0, name = ''}) {
     if (index == 0) {
-      return ArcherPiece(index: index, maxAllowCount: maxAllowCount, currentAllowCount: currentAllowCount, name: name);
-    } 
+      return ArcherPiece(
+          index: index,
+          maxAllowCount: maxAllowCount,
+          currentAllowCount: currentAllowCount,
+          name: name);
+    }
     if (index == 1) {
-      return LancerPiece(index: index, maxAllowCount: maxAllowCount, currentAllowCount: currentAllowCount, name: name);
+      return LancerPiece(
+          index: index,
+          maxAllowCount: maxAllowCount,
+          currentAllowCount: currentAllowCount,
+          name: name);
     }
 
-    return LancerPiece(index: index, maxAllowCount: maxAllowCount, currentAllowCount: currentAllowCount, name: name);
+    return LancerPiece(
+        index: index,
+        maxAllowCount: maxAllowCount,
+        currentAllowCount: currentAllowCount,
+        name: name);
   }
 
-  int get enableEmpolyCount => maxAllowCount - gameOutCount - currentAllowCount - currentHandCount - disableCount;
+  int get enableEmpolyCount =>
+      maxAllowCount -
+      gameOutCount -
+      currentAllowCount -
+      currentHandCount -
+      disableCount;
 
   @override
   String toString() {
     return jsonEncode(Map.from({
-      'name':name,
-      'index':index,
-      'maxAllowCount':maxAllowCount,
-      'currentAllowCount':currentAllowCount,
-      'currentHandCount':currentHandCount,
+      'name': name,
+      'index': index,
+      'maxAllowCount': maxAllowCount,
+      'currentAllowCount': currentAllowCount,
+      'currentHandCount': currentHandCount,
       'disableCount': disableCount,
       'gameOutCount': gameOutCount,
     }));
   }
+
   @override
   // TODO: implement hashCode
   int get hashCode => index;
-
 
   MoveConfig GetEnableMoveConfig() {
     return _DefaultNormalMoveConfig();
   }
 
-  void GetEnableAttackConfig() {
-
-  }
+  void GetEnableAttackConfig() {}
 
   Future<bool> Move(GameController game) async {
     logD("try Move ");
@@ -90,12 +96,15 @@ class BasicPiece {
 
     Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
-    final layoutNodeEntry = game.map.nodes.entries.where((element) => element.value.piece == this).firstOrNull;
+    final layoutNodeEntry = game.map.nodes.entries
+        .where((element) => element.value.piece == this)
+        .firstOrNull;
     if (layoutNodeEntry != null) {
       // NOTE: 2 获取周围的格子中，可以被移动的格子
       final node = layoutNodeEntry.value;
-      final sroundNodes = game.map.nodes.entries.where((element) => element.value.piece == null).where((element)  {
-        
+      final sroundNodes = game.map.nodes.entries
+          .where((element) => element.value.piece == null)
+          .where((element) {
         // logD("sroundNodes ${element.key} ${ node.sroundNodeOffsets}");
         return node.sroundNodeOffsets.where((sOffset) {
           final comResult = sOffset - element.key;
@@ -110,10 +119,18 @@ class BasicPiece {
           node.piece = null;
           e.piece = this;
           game.onRefresh?.call();
-          moveCompleter.safeComplete(true);
+          if (CanAfterMove()) {
+            AfterMove(game).then((value) {
+              moveCompleter.safeComplete(true);
+            });
+          } else {
+            moveCompleter.safeComplete(true);
+          }
         };
       });
-      logD("${ game.map.nodes.entries.where((e) { return e.value.nextClickCallback != null; })}");
+      logD("${game.map.nodes.entries.where((e) {
+        return e.value.nextClickCallback != null;
+      })}");
       game.onRefresh?.call();
     } else {
       logE("without piece $this in map");
@@ -123,38 +140,53 @@ class BasicPiece {
   }
 
   LayoutNode? GetCurrentLayoutNode(GameController game) {
-    return game.map.nodes.entries.where((element) => element.value.piece == this).firstOrNull?.value;
+    return game.map.nodes.entries
+        .where((element) => element.value.piece == this)
+        .firstOrNull
+        ?.value;
   }
 
   PlayerInfo GetPlayer(GameController game) {
-    return   game.playerA.selectAbleItem.where((element) => element == this).isNotEmpty ? game.playerA : game.playerB;
+    return game.playerA.selectAbleItem
+            .where((element) => element == this)
+            .isNotEmpty
+        ? game.playerA
+        : game.playerB;
   }
 
-  List<LayoutNode> GetSroundedNodes({int deep = 1, required GameController game, Function? func}) {
+  List<LayoutNode> GetSroundedNodes(
+      {int deep = 1, required GameController game, Function? func}) {
     final node = GetCurrentLayoutNode(game);
     if (node != null) {
       return node.GetSroundedNodes(deep: deep, game: game, func: func);
     }
 
     return [];
-  } 
-
+  }
 
   Future<bool> Attack(GameController game) async {
-    logD("Attack ");  
+    logD("Attack ");
     Completer<bool> moveCompleter = Completer();
-     // NOTE: 1 获取当前位置
-    final layoutNodeEntry = game.map.nodes.entries.where((element) => element.value.piece == this).firstOrNull;
+    // NOTE: 1 获取当前位置
+    final layoutNodeEntry = game.map.nodes.entries
+        .where((element) => element.value.piece == this)
+        .firstOrNull;
     if (layoutNodeEntry != null) {
       // NOTE: 2 获取周围的格子中，可以被移动的格子
       final node = layoutNodeEntry.value;
-      
+
       // NOTE: 3 找到对应的玩家
-      final player =  game.playerA.selectAbleItem.where((element) => element == this).isNotEmpty ? game.playerA : game.playerB;
-      
-      
-      final sroundNodes = game.map.nodes.entries.where((element) => element.value.piece != null && !player.selectAbleItem.contains(element.value.piece)).where((element)  {
-        
+      final player = game.playerA.selectAbleItem
+              .where((element) => element == this)
+              .isNotEmpty
+          ? game.playerA
+          : game.playerB;
+
+      final sroundNodes = game.map.nodes.entries
+          .where((element) =>
+              element.value.piece != null &&
+              !player.selectAbleItem.contains(element.value.piece))
+          .where((element) {
         // logD("sroundNodes ${element.key} ${ node.sroundNodeOffsets}");
         return node.sroundNodeOffsets.where((sOffset) {
           final comResult = sOffset - element.key;
@@ -164,25 +196,25 @@ class BasicPiece {
       }).map((e) => e.value);
       logD("sroundNodes ${sroundNodes.length}");
 
-
       sroundNodes.forEach((e) {
         e.nextClickCallback = () {
           logD("Attack");
           final piece = e.piece;
           if (piece != null) {
-
-            piece.hp-= hp;
+            piece.hp -= hp;
             piece.gameOutCount++;
             if (piece.hp <= 0) {
               piece.hp = 0;
               e.piece = null;
             }
-          } 
-          game.onRefresh?.call(); 
+          }
+          game.onRefresh?.call();
           moveCompleter.safeComplete(true);
         };
       });
-      logD("${ game.map.nodes.entries.where((e) { return e.value.nextClickCallback != null; })}");
+      logD("${game.map.nodes.entries.where((e) {
+        return e.value.nextClickCallback != null;
+      })}");
       game.onRefresh?.call();
     } else {
       logE("without piece $this in map");
@@ -190,19 +222,23 @@ class BasicPiece {
     return moveCompleter.future;
   }
 
-  Future<bool> Control(GameController gameController)  {
+  Future<bool> Control(GameController gameController) {
     Completer<bool> completer = Completer();
-    final layoutNodeEntry = gameController.map.nodes.entries.where((element) => element.value.piece == this).firstOrNull;
+    final layoutNodeEntry = gameController.map.nodes.entries
+        .where((element) => element.value.piece == this)
+        .firstOrNull;
     if (layoutNodeEntry != null) {
-      if (layoutNodeEntry.value.isImportantNode ) {
+      if (layoutNodeEntry.value.isImportantNode) {
         // NOTE: 3 找到对应的玩家
-        final player =  gameController.playerA.selectAbleItem.where((element) => element == this).isNotEmpty ? gameController.playerA : gameController.playerB;
+        final player = gameController.playerA.selectAbleItem
+                .where((element) => element == this)
+                .isNotEmpty
+            ? gameController.playerA
+            : gameController.playerB;
         if (!player.importantNodes.contains(layoutNodeEntry.value)) {
-
           layoutNodeEntry.value.nextClickCallback = () {
             logD("Do Control");
-                
-            
+
             player.importantNodes.add(layoutNodeEntry.value);
             gameController.onRefresh?.call();
             completer.safeComplete(true);
@@ -217,12 +253,16 @@ class BasicPiece {
     logD("Skill ");
     return returnDisableFuture();
   }
-  
-  MoveConfig _DefaultNormalMoveConfig() {
-    return MoveConfig(1);
+
+  bool CanAfterMove() {
+    return false;
   }
 
-  Map<String,dynamic> getConfig() {
+  Future<bool> AfterMove(GameController gameController) async {
+    return returnDisableFuture();
+  }
+
+  Map<String, dynamic> getConfig() {
     return {};
   }
 
