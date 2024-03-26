@@ -3,6 +3,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
@@ -96,4 +97,41 @@ class LayoutNode {
        arcNodeOffsets.add(Offset(arcRightOffset * -1, arcHeightOffset));  
        arcNodeOffsets.add(Offset(arcRightOffset, arcHeightOffset));
     }
+
+    
+
+  List<LayoutNode> GetSroundedNodes({int deep = 1, required GameController game, Function? func}) { 
+    final node = this;
+    if (node != null) {
+      final sroundNodes = game.map.nodes.entries.where((element)  {
+        
+        return node.sroundNodeOffsets.where((sOffset) {
+          final comResult = sOffset - element.key;
+          // logD("sroundNodes ${comResult.distance}");
+          return comResult.distance < 10;
+        }).isNotEmpty;
+      }).map((e) => e.value).toList();
+
+        logD("sroundNodes ${sroundNodes}");
+      if (deep == 1) {
+        return sroundNodes.where((element) {
+        final v = func?.call(element) ;
+        return v ?? true;
+      }).toList();
+      } else {
+        final Map<int, LayoutNode> map = {};
+        sroundNodes.map((element) { 
+          return element.GetSroundedNodes(game: game, deep: deep -1, func: func);
+        }).forEach((element) { 
+          element.forEach((sNode) {
+            map[sNode.id] = sNode;
+          });
+        });
+        return map.entries.map((e) => e.value).toList();
+      }
+    }
+
+    return [];
+  } 
+
 }

@@ -76,7 +76,7 @@ mixin HexagonDrawExtension {
             Rect.zero,
             Rect.fromLTRB(margin, margin, size - margin, size - margin),
             Paint());
-        
+         
       }
     }
     canvas.restore();
@@ -86,7 +86,7 @@ mixin HexagonDrawExtension {
       canvas.translate(node.locationOffset.dx, node.locationOffset.dy);
       var builder = ParagraphBuilder(
           ParagraphStyle(fontSize: 16, textHeightBehavior: TextHeightBehavior()))
-        ..addText("${safePiece.hp}");
+        ..addText("${safePiece.name} ${safePiece.hp}");
       canvas.drawParagraph(
           builder.build()..layout(ParagraphConstraints(width: 200)),
           Offset.zero);

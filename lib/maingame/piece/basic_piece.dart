@@ -2,7 +2,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
+import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
@@ -24,7 +26,7 @@ class BasicPiece {
   // 本场游戏不能使用的数量
   int gameOutCount = 0;
   int hp = 0;
-  final String name;
+  String name;
 
   Function? nextClickCallback;
   BasicPiece({
@@ -32,7 +34,10 @@ class BasicPiece {
     this.maxAllowCount = 5,
     this.currentAllowCount = 0,
     this.name = ''
-  });
+  }) {
+    this.name = this.name.isEmpty ? '$index' : this.name;
+  }
+ 
 
   int get enableEmpolyCount => maxAllowCount - gameOutCount - currentAllowCount - currentHandCount - disableCount;
 
@@ -98,6 +103,23 @@ class BasicPiece {
 
     return moveCompleter.future;
   }
+
+  LayoutNode? GetCurrentLayoutNode(GameController game) {
+    return game.map.nodes.entries.where((element) => element.value.piece == this).firstOrNull?.value;
+  }
+
+  PlayerInfo GetPlayer(GameController game) {
+    return   game.playerA.selectAbleItem.where((element) => element == this).isNotEmpty ? game.playerA : game.playerB;
+  }
+
+  List<LayoutNode> GetSroundedNodes({int deep = 1, required GameController game, Function? func}) {
+    final node = GetCurrentLayoutNode(game);
+    if (node != null) {
+      return node.GetSroundedNodes(deep: deep, game: game, func: func);
+    }
+
+    return [];
+  } 
 
   Future<bool> Attack(GameController game) async {
     logD("Attack ");  
@@ -172,8 +194,9 @@ class BasicPiece {
     return completer.future;
   }
 
-  void Skill() {
+  Future<bool> Skill(GameController gameController) async {
     logD("Skill ");
+    return false;
   }
   
   MoveConfig _DefaultNormalMoveConfig() {

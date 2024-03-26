@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
+import 'package:warx_flutter/maingame/piece/archer_piece.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/maingame/piece/gloden_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
@@ -53,7 +54,7 @@ mixin PlayerInfoLogic {
 
       // NOTE: 招募
       selectAbleItem.forEach((selectAble) {
-        if (selectAble.currentAllowCount + selectAble.currentHandCount < selectAble.maxAllowCount) {
+        if (selectAble.currentAllowCount + selectAble.currentHandCount + selectAble.disableCount < selectAble.maxAllowCount) {
 
            selectAble.nextClickCallback = () {
             selectAble.currentAllowCount++;
@@ -94,6 +95,15 @@ mixin PlayerInfoLogic {
       });
 
       piece.Control(gameController).then((value) {
+        if (value) {
+          comsumePiece(piece);
+          cancelOtherAllClickableEvent(gameController);
+          notifyUI();
+        }
+        clickComsumePieceCompleter.safeComplete(value);
+      });
+      
+      piece.Skill(gameController).then((value) {
         if (value) {
           comsumePiece(piece);
           cancelOtherAllClickableEvent(gameController);
@@ -150,7 +160,12 @@ mixin PlayerInfoLogic {
   }
 
   void fillPiece(int index) {
+    if (index == 0) {
+selectAbleItem.add(ArcherPiece(index: index, currentAllowCount: 2));
+    } else {
+
     selectAbleItem.add(BasicPiece(index: index, currentAllowCount: 2));
+    }
   }
 
   void fillPieces(List<int> indexs) {
