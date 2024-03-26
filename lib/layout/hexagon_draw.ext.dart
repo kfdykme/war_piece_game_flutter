@@ -70,7 +70,7 @@ mixin HexagonDrawExtension {
       if (image != null) {
         final size = node.heightOffset * 2;
         final margin = size / 10;
-
+         
         canvas.drawImageNine(
             image,
             Rect.zero,

@@ -8,7 +8,7 @@ import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 class ArcherPiece extends BasicPiece {
-  ArcherPiece({required super.index, super.currentAllowCount});
+  ArcherPiece({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
 
   @override
   // TODO: implement name
@@ -16,7 +16,8 @@ class ArcherPiece extends BasicPiece {
 
   @override
   Future<bool> Attack(GameController game) async { 
-    return Completer<bool>().future;
+    
+    return returnDisableFuture();
   }
 
   @override
@@ -46,5 +47,25 @@ class ArcherPiece extends BasicPiece {
       };
     });
     return completer.future;
+  }
+
+  @override
+  Map<String,dynamic> getConfig() {
+    return {
+      'attack': {
+        'enable': false 
+      },
+      'move': {},
+      'skill': {
+        'target': {
+          'deep': 2,
+          'condition': [
+            'not_empty_piece',
+            'not_friend_piece'
+          ],
+        },
+        'mode': 'hit'
+      }
+    };
   }
 }

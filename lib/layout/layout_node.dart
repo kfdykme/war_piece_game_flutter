@@ -134,4 +134,33 @@ class LayoutNode {
     return [];
   } 
 
+  
+  List<LayoutNode> GetStraightNodes({int deep = 1, required GameController game, Function? func}) {
+     final sroundNodes = GetSroundedNodes(game: game);
+    final sroundNodesOriginOffset = List.filled(sroundNodes.length, this, growable: true); 
+ 
+    int lastDeepLevelPos = sroundNodes.length;
+    for(int x = 0; x < sroundNodes.length; x++) {
+      final element = sroundNodes[x];
+      final offsetDirection = element.locationOffset - sroundNodesOriginOffset[x].locationOffset;
+      final hitNodes = element.GetSroundedNodes(game: game, func: (LayoutNode layoutNode) {
+        final distance = (offsetDirection + element.locationOffset - layoutNode.locationOffset).distance; 
+        return distance < 10 && !sroundNodes.contains(layoutNode);
+      }); 
+      if (x == lastDeepLevelPos) {
+        deep--;
+        lastDeepLevelPos = sroundNodes.length;
+      }
+
+      if (deep > 1) {
+        sroundNodes.addAll(hitNodes);
+        sroundNodesOriginOffset.addAll(List.filled(hitNodes.length, element));
+      }
+    }
+    return sroundNodes.where((element) {
+        final v = func?.call(element) ;
+        return v ?? true;
+    }).toList();
+  }
+
 }

@@ -159,13 +159,7 @@ mixin PlayerInfoLogic {
     return selectAbleItem.where((element) => element.currentHandCount > 0).isNotEmpty;
   }
 
-  void fillPiece(int index) {
-    if (index == 0) {
-selectAbleItem.add(ArcherPiece(index: index, currentAllowCount: 2));
-    } else {
-
-    selectAbleItem.add(BasicPiece(index: index, currentAllowCount: 2));
-    }
+  void fillPiece(int index) {selectAbleItem.add(BasicPiece.build(index: index, currentAllowCount: 2));
   }
 
   void fillPieces(List<int> indexs) {

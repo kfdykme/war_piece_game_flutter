@@ -4,6 +4,8 @@ import 'dart:convert';
 
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
+import 'package:warx_flutter/maingame/piece/archer_piece.dart';
+import 'package:warx_flutter/maingame/piece/lancer_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
@@ -38,6 +40,22 @@ class BasicPiece {
     this.name = this.name.isEmpty ? '$index' : this.name;
   }
  
+
+  static BasicPiece build({
+    required index ,
+    maxAllowCount = 5,
+    currentAllowCount = 0,
+    name = ''
+  }) {
+    if (index == 0) {
+      return ArcherPiece(index: index, maxAllowCount: maxAllowCount, currentAllowCount: currentAllowCount, name: name);
+    } 
+    if (index == 1) {
+      return LancerPiece(index: index, maxAllowCount: maxAllowCount, currentAllowCount: currentAllowCount, name: name);
+    }
+
+    return LancerPiece(index: index, maxAllowCount: maxAllowCount, currentAllowCount: currentAllowCount, name: name);
+  }
 
   int get enableEmpolyCount => maxAllowCount - gameOutCount - currentAllowCount - currentHandCount - disableCount;
 
@@ -121,6 +139,7 @@ class BasicPiece {
     return [];
   } 
 
+
   Future<bool> Attack(GameController game) async {
     logD("Attack ");  
     Completer<bool> moveCompleter = Completer();
@@ -196,10 +215,18 @@ class BasicPiece {
 
   Future<bool> Skill(GameController gameController) async {
     logD("Skill ");
-    return false;
+    return returnDisableFuture();
   }
   
   MoveConfig _DefaultNormalMoveConfig() {
     return MoveConfig(1);
+  }
+
+  Map<String,dynamic> getConfig() {
+    return {};
+  }
+
+  Future<bool> returnDisableFuture() {
+    return Completer<bool>().future;
   }
 }
