@@ -30,14 +30,8 @@ class HeavyCavalryPiece extends BasicPiece {
         element.nextClickCallback = () {
           final piece = element.piece;
           if (piece != null) {
-
-            piece.hp -= hp;
-            piece.gameOutCount += hp;
-            if (piece.hp <= 0) {
-              piece.hp = 0;
-              element.piece = null;
-            }
-          } 
+           DoAttack(piece, element);
+          }
           gameController.onRefresh?.call();
           completer.safeComplete(true); 
         };

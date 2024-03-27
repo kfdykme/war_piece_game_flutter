@@ -40,6 +40,19 @@ class BasicPiece {
     this.name = this.name.isEmpty ? '$index' : this.name;
   }
 
+  void DoAttack(BasicPiece enemyPiece, LayoutNode node) {
+    enemyPiece.hp -= hp;
+    enemyPiece.gameOutCount+= hp;
+    if (enemyPiece.hp <= 0) {
+      enemyPiece.hp = 0;
+      node.piece = null;
+    }
+    enemyPiece.OnAttack(this);
+  }
+
+  void OnAttack(BasicPiece attackerPiece) {
+    logD("OnAttack");
+  }
  
 
   static BasicPiece build(
@@ -228,12 +241,7 @@ class BasicPiece {
           logD("Attack");
           final piece = e.piece;
           if (piece != null) {
-            piece.hp -= hp;
-            piece.gameOutCount++;
-            if (piece.hp <= 0) {
-              piece.hp = 0;
-              e.piece = null;
-            }
+           DoAttack(piece, e);
           }
           game.onRefresh?.call();
           moveCompleter.safeComplete(true);
