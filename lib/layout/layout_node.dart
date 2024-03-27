@@ -135,13 +135,16 @@ class LayoutNode {
   } 
 
   
-  List<LayoutNode> GetStraightNodes({int deep = 1, required GameController game, Function? func}) {
+  List<LayoutNode> GetStraightNodes({int deep = 1, required GameController game, Function? func, Function? originNodeStopFunc}) {
      final sroundNodes = GetSroundedNodes(game: game);
     final sroundNodesOriginOffset = List.filled(sroundNodes.length, this, growable: true); 
  
     int lastDeepLevelPos = sroundNodes.length;
     for(int x = 0; x < sroundNodes.length; x++) {
       final element = sroundNodes[x];
+      if (originNodeStopFunc?.call(element) ?? false) {
+        continue;
+      }
       final offsetDirection = element.locationOffset - sroundNodesOriginOffset[x].locationOffset;
       final hitNodes = element.GetSroundedNodes(game: game, func: (LayoutNode layoutNode) {
         final distance = (offsetDirection + element.locationOffset - layoutNode.locationOffset).distance; 

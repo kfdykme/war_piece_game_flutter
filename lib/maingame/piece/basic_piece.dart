@@ -6,6 +6,7 @@ import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/archer_piece.dart';
 import 'package:warx_flutter/maingame/piece/heavy_cavalry_piece.dart';
 import 'package:warx_flutter/maingame/piece/lancer_piece.dart';
+import 'package:warx_flutter/maingame/piece/marksmen_piece.dart';
 import 'package:warx_flutter/maingame/piece/reconnotire_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
@@ -71,9 +72,16 @@ class BasicPiece {
           name: name);
     }
 
+    if (index == 4) {
+      return MarksmenPiece(
+          index: index,
+          maxAllowCount: maxAllowCount,
+          currentAllowCount: currentAllowCount,
+          name: name);
+    }
 
 
-    return LancerPiece(
+    return BasicPiece(
         index: index,
         maxAllowCount: maxAllowCount,
         currentAllowCount: currentAllowCount,
@@ -144,7 +152,7 @@ class BasicPiece {
       })}");
       game.onRefresh?.call();
     } else {
-      logE("without piece $this in map");
+      logE("without piece ${this.name} in map");
     }
 
     return moveCompleter.future;

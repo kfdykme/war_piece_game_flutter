@@ -26,9 +26,11 @@ mixin PlayerInfoLogic {
        logD("onClickGlodenPiece $piece");
        return false;
     } else {
-      //
+      // 
       Completer<bool> clickComsumePieceCompleter = Completer();
-      piece.GetNodesEnablePlaceNewPiece(gameController).forEach((element) {
+      final enablePlaceNodes = piece.GetNodesEnablePlaceNewPiece(gameController);
+      logD("enablePlaceNodes ${enablePlaceNodes.length}");
+      enablePlaceNodes.forEach((element) {
         // NOTE: 1. 
         if ((element.piece == null && piece.hp ==0) || element.piece == piece) {
           element.nextClickCallback = () {

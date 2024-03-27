@@ -15,7 +15,8 @@ class ReconnotirePiece extends BasicPiece {
   @override
   List<LayoutNode> GetNodesEnablePlaceNewPiece(GameController game) {
     
-    final imnodes =  super.GetNodesEnablePlaceNewPiece(game);
+    final List<LayoutNode> imnodes = [];
+    imnodes.addAll( super.GetNodesEnablePlaceNewPiece(game));
 
     final p = GetPlayer(game);
     final allNodesWithFriendPiece = game.map.nodes.entries.where((element) => element.value.piece != null && p.selectAbleItem.contains(element.value.piece));
