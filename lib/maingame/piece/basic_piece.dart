@@ -6,6 +6,7 @@ import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/archer_piece.dart';
 import 'package:warx_flutter/maingame/piece/heavy_cavalry_piece.dart';
 import 'package:warx_flutter/maingame/piece/lancer_piece.dart';
+import 'package:warx_flutter/maingame/piece/light_cavalry_piece.dart';
 import 'package:warx_flutter/maingame/piece/marksmen_piece.dart';
 import 'package:warx_flutter/maingame/piece/reconnotire_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
@@ -38,6 +39,8 @@ class BasicPiece {
       this.name = ''}) {
     this.name = this.name.isEmpty ? '$index' : this.name;
   }
+
+ 
 
   static BasicPiece build(
       {required index, maxAllowCount = 4, currentAllowCount = 0, name = ''}) {
@@ -79,6 +82,13 @@ class BasicPiece {
           currentAllowCount: currentAllowCount,
           name: name);
     }
+    if (index == 5) {
+      return LightCavalryPiece(
+          index: index,
+          maxAllowCount: maxAllowCount,
+          currentAllowCount: currentAllowCount,
+          name: name);
+    }
 
 
     return BasicPiece(
@@ -115,41 +125,34 @@ class BasicPiece {
 
   void GetEnableAttackConfig() {}
 
+  MoveConfig GetMoveConfig() {
+    return MoveConfig(1);
+  }
+
   Future<bool> Move(GameController game) async {
     logD("try Move "); 
 
     Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
-    final layoutNodeEntry = game.map.nodes.entries
-        .where((element) => element.value.piece == this)
-        .firstOrNull;
-    if (layoutNodeEntry != null) {
-      // NOTE: 2 获取周围的格子中，可以被移动的格子
-      final node = layoutNodeEntry.value;
-      final sroundNodes = game.map.nodes.entries
-          .where((element) => element.value.piece == null)
-          .where((element) {
-        // logD("sroundNodes ${element.key} ${ node.sroundNodeOffsets}");
-        return node.sroundNodeOffsets.where((sOffset) {
-          final comResult = sOffset - element.key;
-          // logD("sroundNodes $comResult");
-          return comResult.distance < 10;
-        }).isNotEmpty;
-      }).map((e) => e.value);
+    final layoutNode = GetCurrentLayoutNode(game);
+  
+    if (layoutNode != null) {
+      // NOTE: 2 获取周围的格子中，可以被移动的格子 
+      final sroundNodes = layoutNode.GetSroundedNodes(game: game, func: (LayoutNode node) {
+        return node.piece == null;
+      }, deep: GetMoveConfig().moveRange); 
+
       logD("sroundNodes ${sroundNodes.length}");
       sroundNodes.forEach((e) {
         e.nextClickCallback = () {
           logD("Do Move");
-          node.piece = null;
+          layoutNode.piece = null;
           e.piece = this;
           game.onRefresh?.call();
           moveCompleter.safeComplete(true);
           
         };
-      });
-      logD("${game.map.nodes.entries.where((e) {
-        return e.value.nextClickCallback != null;
-      })}");
+      }); 
       game.onRefresh?.call();
     } else {
       logE("without piece ${this.name} in map");
