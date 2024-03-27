@@ -6,6 +6,7 @@ import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/archer_piece.dart';
 import 'package:warx_flutter/maingame/piece/heavy_cavalry_piece.dart';
 import 'package:warx_flutter/maingame/piece/lancer_piece.dart';
+import 'package:warx_flutter/maingame/piece/reconnotire_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
@@ -38,7 +39,7 @@ class BasicPiece {
   }
 
   static BasicPiece build(
-      {required index, maxAllowCount = 5, currentAllowCount = 0, name = ''}) {
+      {required index, maxAllowCount = 4, currentAllowCount = 0, name = ''}) {
     if (index == 0) {
       return ArcherPiece(
           index: index,
@@ -60,6 +61,17 @@ class BasicPiece {
           currentAllowCount: currentAllowCount,
           name: name);
     }
+
+    
+    if (index == 3) {
+      return ReconnotirePiece(
+          index: index,
+          maxAllowCount: 5,
+          currentAllowCount: currentAllowCount,
+          name: name);
+    }
+
+
 
     return LancerPiece(
         index: index,
@@ -136,6 +148,11 @@ class BasicPiece {
     }
 
     return moveCompleter.future;
+  }
+
+  List<LayoutNode> GetNodesEnablePlaceNewPiece(GameController game) {
+    final p = GetPlayer(game);
+    return p.importantNodes;
   }
 
   LayoutNode? GetCurrentLayoutNode(GameController game) {

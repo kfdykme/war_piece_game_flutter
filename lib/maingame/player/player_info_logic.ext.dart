@@ -28,7 +28,7 @@ mixin PlayerInfoLogic {
     } else {
       //
       Completer<bool> clickComsumePieceCompleter = Completer();
-      importantNodes.forEach((element) {
+      piece.GetNodesEnablePlaceNewPiece(gameController).forEach((element) {
         // NOTE: 1. 
         if ((element.piece == null && piece.hp ==0) || element.piece == piece) {
           element.nextClickCallback = () {
