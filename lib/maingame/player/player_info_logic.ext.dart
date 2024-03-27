@@ -97,7 +97,16 @@ mixin PlayerInfoLogic {
           cancelOtherAllClickableEvent(gameController);
           notifyUI();
         }
-        clickComsumePieceCompleter.safeComplete(value);
+        if (piece.CanAfterAttack()) {
+          nextSkipCallback = buildNextSkipCall(gameController, piece);
+          piece.OnAfterAttack(gameController).then((value) {
+            cancelOtherAllClickableEvent(gameController);
+            notifyUI(); 
+            clickComsumePieceCompleter.safeComplete(true);
+          });
+        } else {
+          clickComsumePieceCompleter.safeComplete(value);
+        }
       });
 
       piece.Control(gameController).then((value) {

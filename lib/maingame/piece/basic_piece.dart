@@ -9,6 +9,8 @@ import 'package:warx_flutter/maingame/piece/lancer_piece.dart';
 import 'package:warx_flutter/maingame/piece/light_cavalry_piece.dart';
 import 'package:warx_flutter/maingame/piece/marksmen_piece.dart';
 import 'package:warx_flutter/maingame/piece/reconnotire_piece.dart';
+import 'package:warx_flutter/maingame/piece/spearmen_piece.dart';
+import 'package:warx_flutter/maingame/piece/swordsman_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
@@ -21,13 +23,17 @@ class MoveConfig {
 class BasicPiece {
   final int index;
   final int maxAllowCount;
+  // 已招募，不在手上的数量
   int currentAllowCount;
+  // 当前
   int currentHandCount = 0;
+
   // 弃牌堆中的数量
   int disableCount = 0;
 
   // 本场游戏不能使用的数量
   int gameOutCount = 0;
+
   int hp = 0;
   String name;
 
@@ -40,17 +46,25 @@ class BasicPiece {
     this.name = this.name.isEmpty ? '$index' : this.name;
   }
 
-  void DoAttack(BasicPiece enemyPiece, LayoutNode node) {
+  bool CanAfterAttack() {
+    return false;
+  }
+
+  Future<bool> OnAfterAttack(GameController gameController) async {
+    return returnDisableFuture();
+  }
+
+  void DoAttack(BasicPiece enemyPiece, LayoutNode node, GameController game) {
     enemyPiece.hp -= hp;
     enemyPiece.gameOutCount+= hp;
     if (enemyPiece.hp <= 0) {
       enemyPiece.hp = 0;
       node.piece = null;
     }
-    enemyPiece.OnAttack(this);
+    enemyPiece.OnAttack(this, game);
   }
 
-  void OnAttack(BasicPiece attackerPiece) {
+  void OnAttack(BasicPiece attackerPiece, GameController game) {
     logD("OnAttack");
   }
  
@@ -97,6 +111,20 @@ class BasicPiece {
     }
     if (index == 5) {
       return LightCavalryPiece(
+          index: index,
+          maxAllowCount: maxAllowCount,
+          currentAllowCount: currentAllowCount,
+          name: name);
+    }
+    if (index == 6) {
+      return SperamenPiece(
+          index: index,
+          maxAllowCount: maxAllowCount,
+          currentAllowCount: currentAllowCount,
+          name: name);
+    }
+    if (index == 7) {
+      return SwordsmanPiece(
           index: index,
           maxAllowCount: maxAllowCount,
           currentAllowCount: currentAllowCount,
@@ -241,7 +269,7 @@ class BasicPiece {
           logD("Attack");
           final piece = e.piece;
           if (piece != null) {
-           DoAttack(piece, e);
+           DoAttack(piece, e,game);
           }
           game.onRefresh?.call();
           moveCompleter.safeComplete(true);
