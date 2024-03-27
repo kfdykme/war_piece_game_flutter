@@ -68,12 +68,7 @@ mixin PlayerInfoLogic {
       );
 
       // NOTE: Skip
-      nextSkipCallback = () {
-          comsumePiece(piece);
-          cancelOtherAllClickableEvent(gameController);
-          notifyUI(); 
-          return true;
-      };
+      nextSkipCallback = buildNextSkipCall(gameController, piece);
 
       piece.Move(gameController).then((value) {
         if (value) {
@@ -82,7 +77,16 @@ mixin PlayerInfoLogic {
           cancelOtherAllClickableEvent(gameController);
           notifyUI(); 
         }
-        clickComsumePieceCompleter.safeComplete(value);
+        if(piece.CanAfterMove(gameController)) {
+          nextSkipCallback = buildNextSkipCall(gameController, piece);
+          piece.AfterMove(gameController).then((value) {
+            cancelOtherAllClickableEvent(gameController);
+            notifyUI(); 
+            clickComsumePieceCompleter.safeComplete(true);
+          });
+        } else {
+          clickComsumePieceCompleter.safeComplete(value);
+        }
       });
 
       piece.Attack(gameController).then((value) {
@@ -117,6 +121,15 @@ mixin PlayerInfoLogic {
     }
 
     return false;
+  }
+
+  Function buildNextSkipCall(GameController gameController, BasicPiece piece) {
+    return  () {
+          comsumePiece(piece);
+          cancelOtherAllClickableEvent(gameController);
+          notifyUI(); 
+          return true;
+      };
   }
 
   void cancelOtherAllClickableEvent(GameController gameController) {

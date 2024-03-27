@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/archer_piece.dart';
+import 'package:warx_flutter/maingame/piece/heavy_cavalry_piece.dart';
 import 'package:warx_flutter/maingame/piece/lancer_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
@@ -52,6 +53,13 @@ class BasicPiece {
           currentAllowCount: currentAllowCount,
           name: name);
     }
+    if (index == 2) {
+      return HeavyCavalryPiece(
+          index: index,
+          maxAllowCount: maxAllowCount,
+          currentAllowCount: currentAllowCount,
+          name: name);
+    }
 
     return LancerPiece(
         index: index,
@@ -83,16 +91,12 @@ class BasicPiece {
   @override
   // TODO: implement hashCode
   int get hashCode => index;
-
-  MoveConfig GetEnableMoveConfig() {
-    return _DefaultNormalMoveConfig();
-  }
+ 
 
   void GetEnableAttackConfig() {}
 
   Future<bool> Move(GameController game) async {
-    logD("try Move ");
-    final config = GetEnableMoveConfig();
+    logD("try Move "); 
 
     Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
@@ -119,13 +123,8 @@ class BasicPiece {
           node.piece = null;
           e.piece = this;
           game.onRefresh?.call();
-          if (CanAfterMove()) {
-            AfterMove(game).then((value) {
-              moveCompleter.safeComplete(true);
-            });
-          } else {
-            moveCompleter.safeComplete(true);
-          }
+          moveCompleter.safeComplete(true);
+          
         };
       });
       logD("${game.map.nodes.entries.where((e) {
@@ -254,12 +253,12 @@ class BasicPiece {
     return returnDisableFuture();
   }
 
-  bool CanAfterMove() {
+  bool CanAfterMove(GameController gameController) {
     return false;
   }
 
   Future<bool> AfterMove(GameController gameController) async {
-    return returnDisableFuture();
+    return false;
   }
 
   Map<String, dynamic> getConfig() {
