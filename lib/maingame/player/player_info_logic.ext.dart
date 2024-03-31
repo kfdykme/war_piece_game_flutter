@@ -131,23 +131,35 @@ mixin PlayerInfoLogic {
                 selectAble
                     .disableCount <
             selectAble.maxAllowCount) {
+
+          final e = RecruitPieceEvent();  
+          e.completer = clickComsumePieceCompleter;
+          e.pieceId = selectAble.index;
+          e.playerId = playerId;  
+          clickPieceNextEvents.add(e);
           selectAble.nextClickCallback =
               () {
-            selectAble
-                .currentAllowCount++;
-            comsumePiece(piece);
+            
+            gameController.OnEvent(e);
             cancelOtherAllClickableEvent(
                 gameController);
             notifyUI();
-            return true;
+            return clickComsumePieceCompleter.future;
           };
         }
       });
 
       // NOTE: Skip
+      final skipEvent = SkipEvent();
+      skipEvent.pieceId = piece.index;
+      skipEvent.playerId = playerId;
+      skipEvent.completer = clickComsumePieceCompleter;
+      clickPieceNextEvents.add(skipEvent);
+    clickPieceNextEvents
+        .add(OnClickPieceEvent());
       nextSkipCallback =
           buildNextSkipCall(
-              gameController, piece);
+              gameController, piece,skipEvent);
 
       piece.Move(gameController)
           .then((value) {
@@ -162,7 +174,7 @@ mixin PlayerInfoLogic {
           nextSkipCallback =
               buildNextSkipCall(
                   gameController,
-                  piece);
+                  piece,skipEvent);
           piece.AfterMove(
                   gameController)
               .then((value) {
@@ -190,7 +202,7 @@ mixin PlayerInfoLogic {
           nextSkipCallback =
               buildNextSkipCall(
                   gameController,
-                  piece);
+                  piece,skipEvent);
           piece.OnAfterAttack(
                   gameController)
               .then((value) {
@@ -244,9 +256,10 @@ mixin PlayerInfoLogic {
 
   Function buildNextSkipCall(
       GameController gameController,
-      BasicPiece piece) {
+      BasicPiece piece, SkipEvent event) {
     return () {
-      comsumePiece(piece);
+      gameController.OnEvent(event);
+      // comsumePiece(piece);
       cancelOtherAllClickableEvent(
           gameController);
       notifyUI();

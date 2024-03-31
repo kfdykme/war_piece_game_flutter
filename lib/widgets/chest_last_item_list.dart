@@ -17,9 +17,9 @@ class ChestLastItemListState extends State<ChestLastItemList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      shrinkWrap: true,itemBuilder: (context,index){
-      return Container(color: widget.info.nextSkipCallback != null ? Colors.tealAccent : null,child: MaterialButton(onPressed: () {
-        final comsumePiece = widget.info.nextSkipCallback?.call() ?? false;
+      shrinkWrap: true,itemBuilder: (context,index) {
+      return Container(color: widget.info.nextSkipCallback != null ? Colors.tealAccent : null,child: MaterialButton(onPressed: () async {
+        final comsumePiece = await widget.info.nextSkipCallback?.call() ?? false;
         if (comsumePiece) {
           
           context.game.nextPlayer();

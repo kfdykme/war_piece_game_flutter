@@ -62,6 +62,7 @@ class GameController {
   }
 
   void OnEvent(BaseGameEvent event) {
+    logD("onEvent $event");
     final player = GetPlayerById(event.playerId);
     if (event is OnClickPieceEvent) {
       final safePiece = player.GetPieceByIndex(event.pieceId);
@@ -88,6 +89,19 @@ class GameController {
             player.comsumePiece(safePiece); 
           }
         }
+      }
+    } else if (event is RecruitPieceEvent) {
+      final safePiece = player.GetPieceByIndex(event.pieceId);
+      if(safePiece != null) {
+        safePiece.currentAllowCount++;
+        player.comsumePiece(safePiece);
+        event.completer.safeComplete(true);
+      }
+    } else if (event is SkipEvent) {
+      final safePiece = player.GetPieceByIndex(event.pieceId);
+      if(safePiece != null) { 
+        player.comsumePiece(safePiece);
+        event.completer.safeComplete(true);
       }
     }
   }

@@ -13,3 +13,13 @@ class ArragePieceEvent extends BaseGameEvent {
   int pieceId = 0; 
   int nodeId = 0;
 }
+
+class RecruitPieceEvent extends BaseGameEvent {
+  int pieceId = 0; 
+  
+}
+
+class SkipEvent extends BaseGameEvent {
+  int pieceId = 0; 
+  
+}
