@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
@@ -43,9 +44,17 @@ class ResourceManager {
 
   late PictureInfo pictureInfo;
   Future<void> loadImage() async {
-    File imageFile = File('resources/kenney_1-bit-pack/Tilemap/tileset_legacy.png');
-    imageFile.statSync();
-    Uint8List imageBytes = await imageFile.readAsBytes();
+    // rootBundle.loadBuffer(key)
+    Uint8List imageBytes = Uint8List.fromList([]);
+    if (Platform.isWindows) {
+
+      File imageFile = File('resources/kenney_1-bit-pack/Tilemap/tileset_legacy.png');
+      imageFile.statSync();
+      imageBytes = await imageFile.readAsBytes();
+    } else if (Platform.isMacOS) {
+      final bytes = await rootBundle.load('resources/kenney_1-bit-pack/Tilemap/tileset_legacy.png');
+      imageBytes = bytes.buffer.asUint8List();
+    }
     logD("loadImage size ${imageBytes.length}");
 
     ui.Image originalImage = await decodeImageFromList(imageBytes);
