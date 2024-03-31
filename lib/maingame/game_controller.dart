@@ -1,5 +1,6 @@
 
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
@@ -21,6 +22,8 @@ class GameController {
   GameTurn currentTurn = GameTurn.beforestart;
   BanPickGameState bp = BanPickGameState();
   Function? onRefresh;
+  Completer onReadyPlayerComplter = Completer();
+  
 
   static bool dev_is_skip_bp = true;
 

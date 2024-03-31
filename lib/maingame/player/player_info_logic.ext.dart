@@ -34,36 +34,6 @@ mixin PlayerInfoLogic {
         .add(OnClickPieceEvent());
   }
 
-  void generateClickPieceNextEvent(
-      BasicPiece piece,
-      GameController gameController,
-      Completer<bool> completer) {
-    enableEvent.clear();
-    //1. generate arrange event
-
-    final enablePlaceNodes = piece
-        .GetNodesEnablePlaceNewPiece(
-            gameController);
-    logD(
-        "enablePlaceNodes ${enablePlaceNodes.length}");
-    enablePlaceNodes.forEach((node) {
-      if ((node.piece == null &&
-              piece.hp == 0) ||
-          node.piece == piece) {
-        final arrangePieceEvent =
-            ArragePieceEvent();
-        arrangePieceEvent.nodeId =
-            node.id;
-        arrangePieceEvent.pieceId =
-            piece.index;
-        arrangePieceEvent.completer =
-            completer;
-        arrangePieceEvent.playerId =
-            playerId;
-      }
-    });
-  }
-
   bool enable(BaseGameEvent event) {
     return enableEvent
         .where((element) =>
@@ -93,8 +63,7 @@ mixin PlayerInfoLogic {
           .GetNodesEnablePlaceNewPiece(
               gameController);
       logD(
-          "enablePlaceNodes ${enablePlaceNodes.length}");
-      // generateClickPieceNextEvent(piece, gameController, clickComsumePieceCompleter);
+          "EventLoop enablePlaceNodes ${enablePlaceNodes.length}");
 
       List<BaseGameEvent>
           clickPieceNextEvents = [];

@@ -31,22 +31,29 @@ class PlayerInfoAi extends PlayerInfo {
     sCount++;
     if (kDebugMode) {
       if (sCount> 100) {
+        logE("EventLoop max");
         return;
       }
     }
     // logD("EventLoop OnPlayerTurn wait $this");
-    await Future.delayed(const Duration(milliseconds: 1000));
     logD("EventLoop OnPlayerTurn start $this");
     if (enableEvent.isEmpty) {
       logE("EventLoop empty");
       return;
     }
-    logD("EventLoop enableEvent $enableEvent");
+    logD("EventLoop enableEvents $enableEvent");
    final randomAiEvent = GetNextRandomeGameEvent() ;
 
    if (randomAiEvent is OnClickPieceEvent) {
           final event = OnClickPieceEvent();
           final pieces = selectAbleItem.where((element) => element.currentHandCount > 0).toList();
+          if (pieces.isEmpty) {
+            getNextRandomPieces();
+            gameController.onReadyPlayerComplter.future.then((value) {
+              OnPlayerTurn();
+            });
+            return;
+          }
           event.pieceId = pieces[Random().nextInt(pieces.length)].index;
           event.playerId = id;
           gameController.OnEvent(event);
