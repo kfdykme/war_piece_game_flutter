@@ -80,7 +80,7 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
         // TITLE
         Text("${widget.info.id} ", style: TextStyle(fontWeight: FontWeight.w600, color: widget.info.color),),
         // Status 
-        if(isCurrentActivePlayer)Text("正在操作中"),
+        if(isCurrentActivePlayer)Text("${widget.info.name} ${widget.info.playerId} ing"),
         ChestRandomInfo(widget.info),
         ChestItemList(widget.info),
         Expanded(child: Container()),

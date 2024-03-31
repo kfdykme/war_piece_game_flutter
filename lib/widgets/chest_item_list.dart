@@ -1,7 +1,10 @@
 
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:warx_flutter/maingame/event/base_game_event.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/player/player_info_ui.ext.dart';
 import 'package:warx_flutter/resources/chest_resource_manager.dart';
@@ -46,15 +49,20 @@ class ChestItemListState extends State<ChestItemList> {
         final piece = list[index];
         final size = 40.0;
       return MaterialButton(onPressed: () {
-        if (context.game.currentPlayer == widget.info) {
-          widget.info.onClickPiece(piece, context.game).then((value) {
-            if (value) {
-              context.game.nextPlayer();
+        if (context.game.currentPlayer == widget.info && widget.info.enable(OnClickPieceEvent())) {
+          // widget.info.onClickPiece(piece, context.game).then((value) {
+          //   if (value) {
+          //     context.game.nextPlayer();
               
-            }
-          });
+          //   }
+          // });
+          final event = OnClickPieceEvent();
+          event.pieceId = piece.index;
+          event.playerId = widget.info.id;
+          context.game.OnEvent(event);
         }
       }, child: Container(
+        color: widget.info.enable(OnClickPieceEvent()) ? Colors.tealAccent : null,
         child:
         Row(children: [
           Container(
@@ -63,7 +71,7 @@ class ChestItemListState extends State<ChestItemList> {
           ResourceManager.i.getImage(10, 25)
           , size: size) : ChestItemBuilder().buildIcon(piece.index, size: size),
           ),
-          Text("x ${piece.currentHandCount}")
+          Text("${piece.name} x ${piece.currentHandCount}")
         ],),)
       );
     }, separatorBuilder: (context, index) {

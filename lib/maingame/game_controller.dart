@@ -3,9 +3,11 @@
 import 'dart:math';
 
 import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
+import 'package:warx_flutter/maingame/event/base_game_event.dart';
 import 'package:warx_flutter/maingame/map/hexagon_map.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/state/ban_pick_state.dart';
+import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 enum GameTurn {
@@ -24,7 +26,19 @@ class GameController {
 
   HexagonMap map = HexagonMap();
 
-  PlayerInfo? currentPlayer;
+  PlayerInfo? _currentPlayer;
+
+  set currentPlayer(v) {
+    if (_currentPlayer != null) {
+      _currentPlayer?.enableEvent.clear();
+    }
+    _currentPlayer = v;
+    if (_currentPlayer != null) {
+      _currentPlayer?.enableTurnStartEvent(this);
+    }
+  }
+
+  get currentPlayer => _currentPlayer;
 
   GameController() {
     _init();
@@ -36,6 +50,46 @@ class GameController {
 
     currentTurn = nextTurn(currentTurn); 
     start();
+  }
+
+  PlayerInfo GetPlayerById(int id) {
+    if (id == playerA.id) {
+      return playerA;
+    } else if (id == playerB.id) {
+      return playerB;
+    }
+    throw Error();
+  }
+
+  void OnEvent(BaseGameEvent event) {
+    final player = GetPlayerById(event.playerId);
+    if (event is OnClickPieceEvent) {
+      final safePiece = player.GetPieceByIndex(event.pieceId);
+      if (safePiece != null) {
+        player.onClickPiece(safePiece, this).then((value) {
+          logD("onClickPiece result $value");
+          nextPlayer();
+        });
+      }
+    } else if (event is ArragePieceEvent) {
+      final safePiece = player.GetPieceByIndex(event.pieceId);
+      final node = map.nodes.entries.where((element) => element.value.id == event.nodeId).firstOrNull?.value;
+      if (node != null && safePiece != null) {
+        if ((node.piece == null && safePiece.hp == 0) || node.piece == safePiece) {
+          if (node.piece != null && node.piece != safePiece) {
+            logD("already has piece here");
+            event.completer.safeComplete(false);
+          } else {
+            logD("add to here");
+            safePiece.hp += 1;
+            node.piece = safePiece;
+
+            event.completer.safeComplete(true);
+            player.comsumePiece(safePiece); 
+          }
+        }
+      }
+    }
   }
 
   start() {
@@ -76,6 +130,7 @@ class GameController {
     }
     playerA.notifyRefresh();
     playerB.notifyRefresh();
+    currentPlayer.OnPlayerTurn();
   }
 
   void onBanPickEvent(BanPickEvent event) {
