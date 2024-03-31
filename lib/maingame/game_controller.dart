@@ -62,7 +62,9 @@ class GameController {
   }
 
   void OnEvent(BaseGameEvent event) {
+    logD("EventLoop $event");
     final player = GetPlayerById(event.playerId);
+    final safePiece = player.GetPieceByIndex(event.pieceId);
     if (event is OnClickPieceEvent) {
       final safePiece = player.GetPieceByIndex(event.pieceId);
       if (safePiece != null) {
@@ -71,8 +73,8 @@ class GameController {
           nextPlayer();
         });
       }
+      return;
     } else if (event is ArragePieceEvent) {
-      final safePiece = player.GetPieceByIndex(event.pieceId);
       final node = map.nodes.entries.where((element) => element.value.id == event.nodeId).firstOrNull?.value;
       if (node != null && safePiece != null) {
         if ((node.piece == null && safePiece.hp == 0) || node.piece == safePiece) {
@@ -89,6 +91,15 @@ class GameController {
           }
         }
       }
+    } else if (event is SkipEvent) {
+      if (safePiece != null) {
+        player.comsumePiece(safePiece);
+        event.completer.safeComplete(true);
+      }
+    }
+
+    if (!event.completer.isCompleted) {
+      logE("EventLoop Not Complete $event $safePiece");
     }
   }
 

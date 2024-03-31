@@ -145,9 +145,14 @@ mixin PlayerInfoLogic {
       });
 
       // NOTE: Skip
+      final skipEvent = SkipEvent();
+      skipEvent.playerId = playerId;
+      skipEvent.completer = clickComsumePieceCompleter;
+      skipEvent.pieceId  = piece.index;
+      clickPieceNextEvents.add(skipEvent);
       nextSkipCallback =
           buildNextSkipCall(
-              gameController, piece);
+              gameController, piece, skipEvent);
 
       piece.Move(gameController)
           .then((value) {
@@ -162,7 +167,7 @@ mixin PlayerInfoLogic {
           nextSkipCallback =
               buildNextSkipCall(
                   gameController,
-                  piece);
+                  piece, skipEvent);
           piece.AfterMove(
                   gameController)
               .then((value) {
@@ -190,7 +195,7 @@ mixin PlayerInfoLogic {
           nextSkipCallback =
               buildNextSkipCall(
                   gameController,
-                  piece);
+                  piece, skipEvent);
           piece.OnAfterAttack(
                   gameController)
               .then((value) {
@@ -244,9 +249,9 @@ mixin PlayerInfoLogic {
 
   Function buildNextSkipCall(
       GameController gameController,
-      BasicPiece piece) {
+      BasicPiece piece, SkipEvent skipEvent) {
     return () {
-      comsumePiece(piece);
+      gameController.OnEvent(skipEvent);
       cancelOtherAllClickableEvent(
           gameController);
       notifyUI();
