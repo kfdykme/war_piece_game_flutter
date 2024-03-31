@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
+import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/map/hexagon_map.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/state/ban_pick_state.dart';
@@ -98,6 +99,14 @@ class GameController {
       if (safePiece != null) {
         player.comsumePiece(safePiece);
         event.completer.safeComplete(true);
+      }
+    } else if (event is PieceMoveEvent) {
+      if (safePiece != null) {
+        event.originNode.piece = null;
+        event.targetNode.piece = safePiece;
+        onRefresh?.call();
+        event.completer.safeComplete(true);
+          
       }
     }
 

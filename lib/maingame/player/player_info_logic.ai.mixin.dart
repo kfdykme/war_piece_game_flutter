@@ -35,6 +35,7 @@ class PlayerInfoAi extends PlayerInfo {
         return;
       }
     }
+    await Future.delayed(const Duration(milliseconds: 300));
     // logD("EventLoop OnPlayerTurn wait $this");
     logD("EventLoop OnPlayerTurn start $this");
     if (enableEvent.isEmpty) {

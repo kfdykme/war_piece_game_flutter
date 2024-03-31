@@ -123,8 +123,9 @@ mixin PlayerInfoLogic {
           buildNextSkipCall(
               gameController, piece, skipEvent);
 
-      piece.Move(gameController)
-          .then((value) {
+      final movedata = piece.Move(gameController);
+      clickPieceNextEvents.addAll(movedata.events);
+      movedata.completer.future.then((value) {
         if (value) {
           comsumePiece(piece);
           cancelOtherAllClickableEvent(

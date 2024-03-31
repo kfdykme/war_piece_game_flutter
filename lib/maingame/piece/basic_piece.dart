@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:warx_flutter/layout/layout_node.dart';
+import 'package:warx_flutter/maingame/event/base_game_event.dart';
+import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/archer_piece.dart';
 import 'package:warx_flutter/maingame/piece/heavy_cavalry_piece.dart';
@@ -18,6 +20,11 @@ import 'package:warx_flutter/util/log.object.extension.dart';
 class MoveConfig {
   final int moveRange;
   MoveConfig(this.moveRange);
+}
+
+class PieceEventBuildData {
+  List<BaseGameEvent> events = [];
+  Completer<bool> completer = Completer();
 }
 
 class BasicPiece {
@@ -170,9 +177,9 @@ class BasicPiece {
     return MoveConfig(1);
   }
 
-  Future<bool> Move(GameController game) async {
+  PieceEventBuildData Move(GameController game) {
     logD("try Move "); 
-
+    PieceEventBuildData data = PieceEventBuildData();
     Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
     final layoutNode = GetCurrentLayoutNode(game);
@@ -185,13 +192,16 @@ class BasicPiece {
 
       logD("sroundNodes ${sroundNodes.length}");
       sroundNodes.forEach((e) {
+        final event = PieceMoveEvent();
+        event.originNode = layoutNode;
+        event.targetNode = e;
+        event.playerId = GetPlayer(game).id;
+        event.completer = moveCompleter;
+        event.pieceId = index;
+        data.events.add(event);
         e.nextClickCallback = () {
           logD("Do Move");
-          layoutNode.piece = null;
-          e.piece = this;
-          game.onRefresh?.call();
-          moveCompleter.safeComplete(true);
-          
+          game.OnEvent(event);
         };
       }); 
       game.onRefresh?.call();
@@ -199,7 +209,8 @@ class BasicPiece {
       logE("without piece ${this.name} in map");
     }
 
-    return moveCompleter.future;
+    moveCompleter.future.then((value) => data.completer.safeComplete(value));
+    return data;
   }
 
   List<LayoutNode> GetNodesEnablePlaceNewPiece(GameController game) {
