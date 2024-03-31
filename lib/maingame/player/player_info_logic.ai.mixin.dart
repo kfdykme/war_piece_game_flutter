@@ -30,12 +30,12 @@ class PlayerInfoAi extends PlayerInfo {
   Future<void> OnPlayerTurn() async { 
     sCount++;
     if (kDebugMode) {
-      if (sCount> 100) {
+      if (sCount> 400) {
         logE("EventLoop max");
         return;
       }
     }
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
     // logD("EventLoop OnPlayerTurn wait $this");
     logD("EventLoop OnPlayerTurn start $this");
     if (enableEvent.isEmpty) {

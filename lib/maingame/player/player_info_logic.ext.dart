@@ -153,8 +153,9 @@ mixin PlayerInfoLogic {
         }
       });
 
-      piece.Attack(gameController)
-          .then((value) {
+      final attackdata = piece.Attack(gameController);
+      clickPieceNextEvents.addAll(attackdata.events);
+      attackdata.completer.future.then((value) {
         if (value) {
           comsumePiece(piece);
           cancelOtherAllClickableEvent(

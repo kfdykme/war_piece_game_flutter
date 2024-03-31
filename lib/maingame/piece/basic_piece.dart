@@ -243,8 +243,9 @@ class BasicPiece {
     return [];
   }
 
-  Future<bool> Attack(GameController game) async {
+  PieceEventBuildData Attack(GameController game) {
     logD("Attack ");
+    PieceEventBuildData data = PieceEventBuildData();
     Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
     final layoutNodeEntry = game.map.nodes.entries
@@ -276,15 +277,22 @@ class BasicPiece {
       logD("sroundNodes ${sroundNodes.length}");
 
       sroundNodes.forEach((e) {
+        final enemy = e.piece;
+        if (enemy != null) {
+
+        final event = PieceAttackEvent();
+        event.pieceId = index;
+        event.playerId = GetPlayer(game).id;
+        event.completer = moveCompleter;
+        event.attacker = this;
+        event.enemy = enemy;
+        event.enemyNode = e;
+        data.events.add(event);
         e.nextClickCallback = () {
           logD("Attack");
-          final piece = e.piece;
-          if (piece != null) {
-           DoAttack(piece, e,game);
-          }
-          game.onRefresh?.call();
-          moveCompleter.safeComplete(true);
+          game.OnEvent(event);
         };
+        }
       });
       logD("${game.map.nodes.entries.where((e) {
         return e.value.nextClickCallback != null;
@@ -293,7 +301,8 @@ class BasicPiece {
     } else {
       logE("without piece $this in map");
     }
-    return moveCompleter.future;
+    moveCompleter.future.then((value) => data.completer.safeComplete(value));
+    return data;
   }
 
   Future<bool> Control(GameController gameController) {

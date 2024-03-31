@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 import 'dart:math';
 
@@ -12,19 +10,13 @@ import 'package:warx_flutter/maingame/state/ban_pick_state.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
-enum GameTurn {
-  beforestart,
-  banpick,
-  game
-}
+enum GameTurn { beforestart, banpick, game }
 
 class GameController {
-
   GameTurn currentTurn = GameTurn.beforestart;
   BanPickGameState bp = BanPickGameState();
   Function? onRefresh;
   Completer onReadyPlayerComplter = Completer();
-  
 
   static bool dev_is_skip_bp = true;
 
@@ -49,10 +41,9 @@ class GameController {
   }
 
   void _init() {
-
     map.bindController(this);
 
-    currentTurn = nextTurn(currentTurn); 
+    currentTurn = nextTurn(currentTurn);
     start();
   }
 
@@ -91,7 +82,7 @@ class GameController {
             node.piece = safePiece;
 
             event.completer.safeComplete(true);
-            player.comsumePiece(safePiece); 
+            player.comsumePiece(safePiece);
           }
         }
       }
@@ -106,7 +97,12 @@ class GameController {
         event.targetNode.piece = safePiece;
         onRefresh?.call();
         event.completer.safeComplete(true);
-          
+      }
+    } else if (event is PieceAttackEvent) {
+      if (safePiece != null) {
+        event.attacker.DoAttack(event.enemy, event.enemyNode, this);
+        onRefresh?.call();
+        event.completer.safeComplete(true);
       }
     }
 
@@ -121,7 +117,7 @@ class GameController {
         // fill player info
 
         playerA.fillPieces(bp.playerASelected);
-        playerB.fillPieces(bp.playerBSelected); 
+        playerB.fillPieces(bp.playerBSelected);
         playerA.bindNotifyUI(playerA.notifyRefresh);
         playerB.bindNotifyUI(playerB.notifyRefresh);
         currentTurn = GameTurn.game;
@@ -130,11 +126,11 @@ class GameController {
       if (!dev_is_skip_bp) {
         bp.start();
       } else {
-        playerA.fillPieces([0,1,2,3]);
-        playerB.fillPieces([4,5,6,7]);
+        playerA.fillPieces([0, 1, 2, 3]);
+        playerB.fillPieces([4, 5, 6, 7]);
         playerA.bindNotifyUI(playerA.notifyRefresh);
         playerB.bindNotifyUI(playerB.notifyRefresh);
-        
+
         currentTurn = GameTurn.game;
         nextPlayer();
         onRefresh?.call();
@@ -146,7 +142,7 @@ class GameController {
     if (currentPlayer == null) {
       // TODO: 默认开始
       currentPlayer = playerA;
-    } else if (currentPlayer == playerA){
+    } else if (currentPlayer == playerA) {
       currentPlayer = playerB;
     } else if (currentPlayer == playerB) {
       currentPlayer = playerA;
@@ -176,5 +172,4 @@ class GameController {
   void setRefresh(Function? callback) {
     onRefresh = callback;
   }
-
 }
