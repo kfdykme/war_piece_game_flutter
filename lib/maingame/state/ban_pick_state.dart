@@ -47,15 +47,15 @@ class BanPickGameState with NextTurnMixin {
   }
 
   void onEvent(BanPickEvent event) {
-    logD("onEvent ${event.index}");
+    logD("EventLoop ${event.index}");
     final safeState = innerStates[stateIndex];
     if (safeState.isBan) {
-      logD("onEvent banedItemLists");
+      logD("EventLoop banedItemLists");
       banedItemLists.add(event.index);
       stateIndex ++;
     }
     if (!safeState.isBan) {
-      logD("onEvent select");
+      logD("EventLoop select");
       // select
       if (safeState.playerId == PlayerInfo.playerA.id) {
         playerASelected.add(event.index);

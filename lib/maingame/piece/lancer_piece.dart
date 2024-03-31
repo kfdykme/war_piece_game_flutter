@@ -14,9 +14,8 @@ class LancerPiece extends BasicPiece {
   String get name => 'Lancer';
 
   @override
-  Future<bool> Attack(GameController game) {
-    // TODO: implement Attack
-    return returnDisableFuture();
+  PieceEventBuildData Attack(GameController game) {
+    return PieceEventBuildData();
   }
 
   @override

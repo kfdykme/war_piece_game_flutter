@@ -1,26 +1,22 @@
-
-
+import 'dart:async';
 import 'dart:math';
 
 import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
+import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/map/hexagon_map.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/state/ban_pick_state.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
-enum GameTurn {
-  beforestart,
-  banpick,
-  game
-}
+enum GameTurn { beforestart, banpick, game }
 
 class GameController {
-
   GameTurn currentTurn = GameTurn.beforestart;
   BanPickGameState bp = BanPickGameState();
   Function? onRefresh;
+  Completer onReadyPlayerComplter = Completer();
 
   static bool dev_is_skip_bp = true;
 
@@ -45,10 +41,9 @@ class GameController {
   }
 
   void _init() {
-
     map.bindController(this);
 
-    currentTurn = nextTurn(currentTurn); 
+    currentTurn = nextTurn(currentTurn);
     start();
   }
 
@@ -62,8 +57,9 @@ class GameController {
   }
 
   void OnEvent(BaseGameEvent event) {
-    logD("onEvent $event");
+    logD("EventLoop $event");
     final player = GetPlayerById(event.playerId);
+    final safePiece = player.GetPieceByIndex(event.pieceId);
     if (event is OnClickPieceEvent) {
       final safePiece = player.GetPieceByIndex(event.pieceId);
       if (safePiece != null) {
@@ -72,8 +68,8 @@ class GameController {
           nextPlayer();
         });
       }
+      return;
     } else if (event is ArragePieceEvent) {
-      final safePiece = player.GetPieceByIndex(event.pieceId);
       final node = map.nodes.entries.where((element) => element.value.id == event.nodeId).firstOrNull?.value;
       if (node != null && safePiece != null) {
         if ((node.piece == null && safePiece.hp == 0) || node.piece == safePiece) {
@@ -86,7 +82,7 @@ class GameController {
             node.piece = safePiece;
 
             event.completer.safeComplete(true);
-            player.comsumePiece(safePiece); 
+            player.comsumePiece(safePiece);
           }
         }
       }
@@ -98,11 +94,27 @@ class GameController {
         event.completer.safeComplete(true);
       }
     } else if (event is SkipEvent) {
-      final safePiece = player.GetPieceByIndex(event.pieceId);
-      if(safePiece != null) { 
+      if (safePiece != null) {
         player.comsumePiece(safePiece);
         event.completer.safeComplete(true);
       }
+    } else if (event is PieceMoveEvent) {
+      if (safePiece != null) {
+        event.originNode.piece = null;
+        event.targetNode.piece = safePiece;
+        onRefresh?.call();
+        event.completer.safeComplete(true);
+      }
+    } else if (event is PieceAttackEvent) {
+      if (safePiece != null) {
+        event.attacker.DoAttack(event.enemy, event.enemyNode, this);
+        onRefresh?.call();
+        event.completer.safeComplete(true);
+      }
+    }
+
+    if (!event.completer.isCompleted) {
+      logE("EventLoop Not Complete $event $safePiece");
     }
   }
 
@@ -112,7 +124,7 @@ class GameController {
         // fill player info
 
         playerA.fillPieces(bp.playerASelected);
-        playerB.fillPieces(bp.playerBSelected); 
+        playerB.fillPieces(bp.playerBSelected);
         playerA.bindNotifyUI(playerA.notifyRefresh);
         playerB.bindNotifyUI(playerB.notifyRefresh);
         currentTurn = GameTurn.game;
@@ -121,11 +133,11 @@ class GameController {
       if (!dev_is_skip_bp) {
         bp.start();
       } else {
-        playerA.fillPieces([0,1,2,3]);
-        playerB.fillPieces([4,5,6,7]);
+        playerA.fillPieces([0, 1, 2, 3]);
+        playerB.fillPieces([4, 5, 6, 7]);
         playerA.bindNotifyUI(playerA.notifyRefresh);
         playerB.bindNotifyUI(playerB.notifyRefresh);
-        
+
         currentTurn = GameTurn.game;
         nextPlayer();
         onRefresh?.call();
@@ -137,7 +149,7 @@ class GameController {
     if (currentPlayer == null) {
       // TODO: 默认开始
       currentPlayer = playerA;
-    } else if (currentPlayer == playerA){
+    } else if (currentPlayer == playerA) {
       currentPlayer = playerB;
     } else if (currentPlayer == playerB) {
       currentPlayer = playerA;
@@ -167,5 +179,4 @@ class GameController {
   void setRefresh(Function? callback) {
     onRefresh = callback;
   }
-
 }

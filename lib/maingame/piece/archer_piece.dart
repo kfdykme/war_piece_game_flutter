@@ -14,12 +14,11 @@ class ArcherPiece extends BasicPiece {
   // TODO: implement name
   String get name => 'Archer';
 
-  @override
-  Future<bool> Attack(GameController game) async { 
-    
-    return returnDisableFuture();
-  }
 
+  @override
+  PieceEventBuildData Attack(GameController game) {
+    return PieceEventBuildData();
+  }
   @override
   Future<bool> Skill(GameController gameController) {
 

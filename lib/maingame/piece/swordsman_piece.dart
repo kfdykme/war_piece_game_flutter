@@ -10,7 +10,7 @@ class SwordsmanPiece extends BasicPiece {
 
   @override
   Future<bool> OnAfterAttack(GameController gameController) { 
-    return Move(gameController);
+    return Move(gameController).completer.future;
   }
 
   @override

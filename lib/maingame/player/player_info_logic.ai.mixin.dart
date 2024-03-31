@@ -1,6 +1,7 @@
 
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
@@ -12,6 +13,7 @@ class PlayerInfoAi extends PlayerInfo {
   late GameController gameController;
   PlayerInfoAi(super.id);
 
+  static int sCount = 0;
 
   @override
   void enableTurnStartEvent(GameController gameController) {
@@ -20,29 +22,37 @@ class PlayerInfoAi extends PlayerInfo {
     this.gameController = gameController;
   }
 
-  BaseGameEvent GetRandomeEvent() {
+  BaseGameEvent GetNextRandomeGameEvent() {
     return enableEvent[Random().nextInt(enableEvent.length)];
   }
 
     @override
   Future<void> OnPlayerTurn() async { 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    sCount++;
+    if (kDebugMode) {
+      if (sCount> 400) {
+        logE("EventLoop max");
+        return;
+      }
+    }
+    await Future.delayed(const Duration(milliseconds: 100));
+    // logD("EventLoop OnPlayerTurn wait $this");
+    logD("EventLoop OnPlayerTurn start $this");
     if (enableEvent.isEmpty) {
-      logE("OnEvent OnPlayerTurn empty");
+      logE("EventLoop empty");
       return;
     }
-   final randomAiEvent = GetRandomeEvent();
-    logD("OnEvent Ai ${randomAiEvent}");
+    logD("EventLoop enableEvents $enableEvent");
+   final randomAiEvent = GetNextRandomeGameEvent() ;
 
    if (randomAiEvent is OnClickPieceEvent) {
           final event = OnClickPieceEvent();
           final pieces = selectAbleItem.where((element) => element.currentHandCount > 0).toList();
           if (pieces.isEmpty) {
             getNextRandomPieces();
-            cancelOtherAllClickableEvent(
-                gameController);
-            notifyUI();
-            await OnPlayerTurn();
+            gameController.onReadyPlayerComplter.future.then((value) {
+              OnPlayerTurn();
+            });
             return;
           }
           event.pieceId = pieces[Random().nextInt(pieces.length)].index;
@@ -54,5 +64,11 @@ class PlayerInfoAi extends PlayerInfo {
         gameController);
     notifyUI();
    }
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return "PlayerAI ${playerId}";
   }
 }
