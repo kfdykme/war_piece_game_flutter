@@ -8,7 +8,6 @@ class LightCavalryPiece extends BasicPiece {
 
   @override
   MoveConfig GetMoveConfig() {
-    // TODO: implement GetMoveConfig
     return MoveConfig(2);
   }
 }

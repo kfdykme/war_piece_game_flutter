@@ -9,8 +9,8 @@ class SwordsmanPiece extends BasicPiece {
   String get name => 'Swordsman';
 
   @override
-  Future<bool> OnAfterAttack(GameController gameController) { 
-    return Move(gameController).completer.future;
+  PieceEventBuildData OnAfterAttack(GameController gameController) { 
+    return Move(gameController);
   }
 
   @override
