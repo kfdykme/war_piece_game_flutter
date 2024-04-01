@@ -58,7 +58,7 @@ class ChestRandomInfoState extends State<ChestRandomInfo> {
         piece.index == -1 ? ChestItemBuilder().buildIconWithData(
           ResourceManager.i.getImage(10, 25)
           , size: size) : ChestItemBuilder().buildIcon(piece.index, size: size),
-        Text("${piece.name} x ${enableClick ? piece.enableEmpolyCount : piece.currentAllowCount} ")
+        Text("${piece.name} x ${enableClick ? piece.enableEmpolyCount : piece.currentPackageCount} ")
       ],
     ),),);
   }

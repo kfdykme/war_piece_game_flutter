@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
@@ -32,7 +33,7 @@ class BasicPiece {
   final int index;
   final int maxAllowCount;
   // 已招募，不在手上的数量
-  int currentAllowCount;
+  int currentPackageCount;
   // 当前
   int currentHandCount = 0;
 
@@ -49,7 +50,7 @@ class BasicPiece {
   BasicPiece(
       {required this.index,
       this.maxAllowCount = 5,
-      this.currentAllowCount = 0,
+      this.currentPackageCount = 0,
       this.name = ''}) {
     this.name = this.name.isEmpty
         ? '$index'
@@ -70,8 +71,9 @@ class BasicPiece {
       BasicPiece enemyPiece,
       LayoutNode node,
       GameController game) {
+    final outCount = min(hp, enemyPiece.hp);
     enemyPiece.hp -= hp;
-    enemyPiece.gameOutCount += hp;
+    enemyPiece.gameOutCount += outCount;
     if (enemyPiece.hp <= 0) {
       enemyPiece.hp = 0;
       node.piece = null;
@@ -88,102 +90,103 @@ class BasicPiece {
   static BasicPiece build(
       {required index,
       maxAllowCount = 4,
-      currentAllowCount = 0,
+      currentPackageCount = 0,
       name = ''}) {
+    var piece;
     if (index == 0) {
-      return ArcherPiece(
+      piece = ArcherPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
     if (index == 1) {
-      return LancerPiece(
+      piece = LancerPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
     if (index == 2) {
-      return HeavyCavalryPiece(
+      piece = HeavyCavalryPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
 
     if (index == 3) {
-      return ReconnotirePiece(
+      piece = ReconnotirePiece(
           index: index,
           maxAllowCount: 5,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
 
     if (index == 4) {
-      return MarksmenPiece(
+      piece = MarksmenPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
     if (index == 5) {
-      return LightCavalryPiece(
+      piece = LightCavalryPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
     if (index == 6) {
-      return SperamenPiece(
+      piece = SperamenPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
     if (index == 7) {
-      return SwordsmanPiece(
+      piece = SwordsmanPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentAllowCount:
-              currentAllowCount,
+          currentPackageCount:
+              currentPackageCount,
           name: name);
     }
 
-    return BasicPiece(
+    piece ??= BasicPiece(
         index: index,
         maxAllowCount: maxAllowCount,
-        currentAllowCount:
-            currentAllowCount,
+        currentPackageCount:
+            currentPackageCount,
         name: name);
+        
+    return piece;
   }
 
-  int get enableEmpolyCount =>
-      maxAllowCount -
-      gameOutCount -
-      currentAllowCount -
-      currentHandCount -
-      disableCount;
+  int enableEmpolyCount = 0;
 
   @override
-  String toString() {
+  String toString() { 
+    assert(maxAllowCount == enableEmpolyCount + gameOutCount + disableCount + currentPackageCount + currentHandCount + hp);
     return jsonEncode(Map.from({
       'name': name,
       'index': index,
       'maxAllowCount': maxAllowCount,
-      'currentAllowCount':
-          currentAllowCount,
+      'currentPackageCount':
+          currentPackageCount,
       'currentHandCount':
           currentHandCount,
       'disableCount': disableCount,
       'gameOutCount': gameOutCount,
+      'enableEmpolyCount': enableEmpolyCount,
+      'hp': hp,
     }));
   }
 

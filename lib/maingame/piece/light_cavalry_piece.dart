@@ -1,7 +1,7 @@
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 
 class LightCavalryPiece extends BasicPiece {
-   LightCavalryPiece ({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
+   LightCavalryPiece ({required super.index, super.currentPackageCount, super.maxAllowCount, super.name});
   @override
   // TODO: implement name
   String get name => 'LightCavalry';

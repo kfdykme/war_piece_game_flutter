@@ -7,7 +7,7 @@ import 'package:warx_flutter/util/completer.safe.extension.dart';
 
 class MarksmenPiece extends BasicPiece {
 
-  MarksmenPiece ({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
+  MarksmenPiece ({required super.index, super.currentPackageCount, super.maxAllowCount, super.name});
   
   @override
   // TODO: implement name

@@ -8,7 +8,7 @@ import 'package:warx_flutter/util/completer.safe.extension.dart';
 
 class HeavyCavalryPiece extends BasicPiece {
 
-  HeavyCavalryPiece({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
+  HeavyCavalryPiece({required super.index, super.currentPackageCount, super.maxAllowCount, super.name});
 
   @override
   // TODO: implement name

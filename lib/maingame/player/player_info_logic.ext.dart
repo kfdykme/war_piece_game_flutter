@@ -78,7 +78,7 @@ mixin PlayerInfoLogic {
 
       // NOTE: 招募
       selectAbleItem.forEach((selectAble) {
-        if (selectAble.currentAllowCount +
+        if (selectAble.currentPackageCount +
                 selectAble.currentHandCount +
                 selectAble.disableCount <
             selectAble.maxAllowCount) {
@@ -98,7 +98,7 @@ mixin PlayerInfoLogic {
             //   return clickComsumePieceCompleter.future;
             // };
             //   selectAble
-            //       .currentAllowCount++;
+            //       .currentPackageCount++;
             //   comsumePiece(piece);
             //   cancelOtherAllClickableEvent(
             //       gameController);
@@ -127,6 +127,7 @@ mixin PlayerInfoLogic {
         }
         if (piece.CanAfterMove(gameController)) {
           final List<BaseGameEvent> afterEvents = [];
+          skipEvent.pieceId = -1;
           afterEvents.add(skipEvent);
           final afterMoveData =
               piece.AfterMove(gameController);
@@ -140,7 +141,7 @@ mixin PlayerInfoLogic {
           skipEvent.completer = afterMoveData.completer;
           nextSkipCallback = buildNextSkipCall(
               gameController, piece, skipEvent);
-              
+
           enableEvent.clear();
           enableEvent.addAll(afterEvents);
 
@@ -168,6 +169,7 @@ mixin PlayerInfoLogic {
             notifyUI();
             clickComsumePieceCompleter.safeComplete(true);
           });
+          skipEvent.pieceId = -1;
           skipEvent.completer = pieceAttackData.completer;
           afterEvents.add(skipEvent);
           nextSkipCallback = buildNextSkipCall(
@@ -241,9 +243,16 @@ mixin PlayerInfoLogic {
         .firstOrNull;
 
     if (hitPiece != null) {
+      assert(hitPiece.currentHandCount > 0);
       hitPiece.currentHandCount--;
       hitPiece.disableCount++;
+      
+      if (!hasHandItem) {
+        getNextRandomPieces();
+        notifyUI();
+      }
     }
+
   }
 
   Function? ui;
@@ -273,8 +282,10 @@ mixin PlayerInfoLogic {
   }
 
   void fillPiece(int index) {
-    selectAbleItem.add(BasicPiece.build(
-        index: index, currentAllowCount: 2));
+    final piece = BasicPiece.build(
+        index: index, currentPackageCount: 2);
+    piece.enableEmpolyCount = piece.maxAllowCount - piece.currentPackageCount;
+    selectAbleItem.add(piece);
   }
 
   void fillPieces(List<int> indexs) {
@@ -287,21 +298,32 @@ mixin PlayerInfoLogic {
     }
   }
 
+  int count = 0;
   BasicPiece _getSingleRandomePiece() {
-    final randomIndex =
-        Random().nextInt(selectAbleItem.length);
-    if (selectAbleItem[randomIndex].currentAllowCount > 0) {
-      selectAbleItem[randomIndex].currentAllowCount--;
-      selectAbleItem[randomIndex].currentHandCount++;
-      return selectAbleItem[randomIndex];
+    count++;
+    final allowItems = selectAbleItem.where((element) => element.currentPackageCount > 0).toList();
+    if (allowItems.isNotEmpty){
+      final randomIndex =
+          Random().nextInt(allowItems.length);
+      if (allowItems[randomIndex].currentPackageCount > 0) {
+        allowItems[randomIndex].currentPackageCount--;
+        allowItems[randomIndex].currentHandCount++;
+        count = 0;
+        return allowItems[randomIndex];
+      }
     }
 
+    assert(count < 10);
     if (selectAbleItem
-        .where((element) => element.currentAllowCount > 0)
+        .where((element) => element.currentPackageCount > 0)
         .isEmpty) {
-      selectAbleItem.forEach((element) {
-        element.currentAllowCount =
-            element.disableCount - element.gameOutCount;
+      selectAbleItem
+          .where((element) =>
+              element.currentPackageCount == 0 &&
+              element.currentHandCount == 0)
+          .forEach((element) {
+        element.currentPackageCount = element.disableCount;
+        element.disableCount = 0;
       });
     }
     return _getSingleRandomePiece();

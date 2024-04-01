@@ -30,40 +30,40 @@ class PlayerInfoAi extends PlayerInfo {
   Future<void> OnPlayerTurn() async { 
     sCount++;
     if (kDebugMode) {
-      if (sCount> 400) {
+      if (sCount> 1000) {
         logE("EventLoop max");
         return;
       }
     }
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 1));
     // logD("EventLoop OnPlayerTurn wait $this");
-    logD("EventLoop OnPlayerTurn start $this");
+    logD("EventLoop OnPlayerTurn start $this $sCount");
     if (enableEvent.isEmpty) {
       logE("EventLoop empty");
       return;
     }
     logD("EventLoop enableEvents $enableEvent");
-   final randomAiEvent = GetNextRandomeGameEvent() ;
+    final randomAiEvent = GetNextRandomeGameEvent() ;
 
-   if (randomAiEvent is OnClickPieceEvent) {
-          final event = OnClickPieceEvent();
-          final pieces = selectAbleItem.where((element) => element.currentHandCount > 0).toList();
-          if (pieces.isEmpty) {
-            getNextRandomPieces();
-            gameController.onReadyPlayerComplter.future.then((value) {
-              OnPlayerTurn();
-            });
-            return;
-          }
-          event.pieceId = pieces[Random().nextInt(pieces.length)].index;
-          event.playerId = id;
-          gameController.OnEvent(event);
-   } else {
-    gameController.OnEvent(randomAiEvent);
-    cancelOtherAllClickableEvent(
-        gameController);
-    notifyUI();
-   }
+    if (randomAiEvent is OnClickPieceEvent) {
+            final event = OnClickPieceEvent();
+            final pieces = selectAbleItem.where((element) => element.currentHandCount > 0).toList();
+            if (pieces.isEmpty) {
+              getNextRandomPieces();
+              gameController.onReadyPlayerComplter.future.then((value) {
+                OnPlayerTurn();
+              });
+              return;
+            }
+            event.pieceId = pieces[Random().nextInt(pieces.length)].index;
+            event.playerId = id;
+            gameController.OnEvent(event);
+    } else {
+      gameController.OnEvent(randomAiEvent);
+      cancelOtherAllClickableEvent(
+          gameController);
+      notifyUI();
+    }
   }
 
   @override

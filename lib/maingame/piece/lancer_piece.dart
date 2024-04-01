@@ -8,7 +8,7 @@ import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 class LancerPiece extends BasicPiece {
-  LancerPiece ({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
+  LancerPiece ({required super.index, super.currentPackageCount, super.maxAllowCount, super.name});
   @override
   // TODO: implement name
   String get name => 'Lancer';

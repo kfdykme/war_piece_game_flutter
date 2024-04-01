@@ -32,10 +32,10 @@ class ChestItemListState extends State<ChestItemList> {
   Widget build(BuildContext context) {
 
     final list = widget.info.selectAbleItem.where((element) => element.currentHandCount>0).toList();
-    if (list.isEmpty) {
-      widget.info.getNextRandomPieces(); 
-      Future.delayed( Duration.zero).then((value) => widget.info.notifyRefresh());
-    }
+    // if (list.isEmpty) {
+    //   widget.info.getNextRandomPieces(); 
+    //   Future.delayed( Duration.zero).then((value) => widget.info.notifyRefresh());
+    // }
     return  ListView.separated(
       shrinkWrap: true,
       itemBuilder: (context, index) {

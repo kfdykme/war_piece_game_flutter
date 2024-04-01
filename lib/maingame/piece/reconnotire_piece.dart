@@ -5,7 +5,7 @@ import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 
 class ReconnotirePiece extends BasicPiece {
   
-  ReconnotirePiece ({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
+  ReconnotirePiece ({required super.index, super.currentPackageCount, super.maxAllowCount, super.name});
 
   @override
   // TODO: implement name

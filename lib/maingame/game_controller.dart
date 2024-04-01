@@ -57,9 +57,10 @@ class GameController {
   }
 
   void OnEvent(BaseGameEvent event) {
-    logD("EventLoop $event");
     final player = GetPlayerById(event.playerId);
     final safePiece = player.GetPieceByIndex(event.pieceId);
+    
+    logD("EventLoop OnEvent $event ${safePiece?.name}");
     if (event is OnClickPieceEvent) {
       final safePiece = player.GetPieceByIndex(event.pieceId);
       if (safePiece != null) {
@@ -79,6 +80,7 @@ class GameController {
           } else {
             logD("add to here");
             safePiece.hp += 1;
+            safePiece.enableEmpolyCount -= 1;
             node.piece = safePiece;
 
             event.completer.safeComplete(true);
@@ -89,13 +91,15 @@ class GameController {
     } else if (event is RecruitPieceEvent) {
       final safePiece = player.GetPieceByIndex(event.pieceId);
       if(safePiece != null) {
-        safePiece.currentAllowCount++;
+        safePiece.currentPackageCount++;
         player.comsumePiece(safePiece);
         event.completer.safeComplete(true);
       }
     } else if (event is SkipEvent) {
       if (safePiece != null) {
         player.comsumePiece(safePiece);
+        event.completer.safeComplete(true);
+      } else {
         event.completer.safeComplete(true);
       }
     } else if (event is PieceMoveEvent) {

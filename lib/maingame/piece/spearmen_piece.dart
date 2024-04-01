@@ -5,7 +5,7 @@ import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 
 class SperamenPiece extends BasicPiece {
   
-  SperamenPiece ({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
+  SperamenPiece ({required super.index, super.currentPackageCount, super.maxAllowCount, super.name});
 
   @override
   // TODO: implement name
@@ -20,8 +20,8 @@ class SperamenPiece extends BasicPiece {
     }).firstOrNull?.piece;
     if (nearAttackerPiece != null) { 
       if (nearAttackerPiece.enableEmpolyCount == 0) {
-        if (nearAttackerPiece.currentAllowCount > 0) {
-          nearAttackerPiece.currentAllowCount--;
+        if (nearAttackerPiece.currentPackageCount > 0) {
+          nearAttackerPiece.currentPackageCount--;
         } else if (nearAttackerPiece.disableCount > 0) {
           nearAttackerPiece.disableCount--;
         } else if (nearAttackerPiece.currentHandCount > 0) {

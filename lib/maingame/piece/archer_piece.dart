@@ -8,7 +8,7 @@ import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 class ArcherPiece extends BasicPiece {
-  ArcherPiece({required super.index, super.currentAllowCount, super.maxAllowCount, super.name});
+  ArcherPiece({required super.index, super.currentPackageCount, super.maxAllowCount, super.name});
 
   @override
   // TODO: implement name
