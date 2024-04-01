@@ -26,8 +26,7 @@ class MoveConfig {
 
 class PieceEventBuildData {
   List<BaseGameEvent> events = [];
-  Completer<bool> completer =
-      Completer();
+  Completer<bool> completer = Completer();
 }
 
 class BasicPiece {
@@ -55,9 +54,7 @@ class BasicPiece {
       this.maxAllowCount = 5,
       this.currentPackageCount = 0,
       this.name = ''}) {
-    this.name = this.name.isEmpty
-        ? '$index'
-        : this.name;
+    this.name = this.name.isEmpty ? '$index' : this.name;
   }
 
   bool CanAfterAttack() {
@@ -65,14 +62,11 @@ class BasicPiece {
   }
 
   PieceEventBuildData OnAfterAttack(
-      GameController
-          gameController) {
+      GameController gameController) {
     return PieceEventBuildData();
   }
 
-  void DoAttack(
-      BasicPiece enemyPiece,
-      LayoutNode node,
+  void DoAttack(BasicPiece enemyPiece, LayoutNode node,
       GameController game) {
     logD("DoAttack $this -> $enemyPiece");
     final outCount = min(hp, enemyPiece.hp);
@@ -86,8 +80,7 @@ class BasicPiece {
   }
 
   void OnAttack(
-      BasicPiece attackerPiece,
-      GameController game) {
+      BasicPiece attackerPiece, GameController game) {
     logD("OnAttack $this");
   }
 
@@ -101,24 +94,21 @@ class BasicPiece {
       piece = ArcherPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
     if (index == 1) {
       piece = LancerPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
     if (index == 2) {
       piece = HeavyCavalryPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
 
@@ -126,8 +116,7 @@ class BasicPiece {
       piece = ReconnotirePiece(
           index: index,
           maxAllowCount: 5,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
 
@@ -135,59 +124,58 @@ class BasicPiece {
       piece = MarksmenPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
     if (index == 5) {
       piece = LightCavalryPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
     if (index == 6) {
       piece = SperamenPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
     if (index == 7) {
       piece = SwordsmanPiece(
           index: index,
           maxAllowCount: maxAllowCount,
-          currentPackageCount:
-              currentPackageCount,
+          currentPackageCount: currentPackageCount,
           name: name);
     }
 
     piece ??= BasicPiece(
         index: index,
         maxAllowCount: maxAllowCount,
-        currentPackageCount:
-            currentPackageCount,
+        currentPackageCount: currentPackageCount,
         name: name);
-        
+
     return piece;
   }
 
   int enableEmpolyCount = 0;
 
   @override
-  String toString() { 
+  String toString() {
     assert(enableEmpolyCount >= 0);
-    assert(maxAllowCount == enableEmpolyCount + gameOutCount + disableCount + currentPackageCount + currentHandCount + hp);
+    assert(maxAllowCount ==
+        enableEmpolyCount +
+            gameOutCount +
+            disableCount +
+            currentPackageCount +
+            currentHandCount +
+            hp);
     return jsonEncode(Map.from({
       'name': name,
       'index': index,
       'maxAllowCount': maxAllowCount,
-      'currentPackageCount':
-          currentPackageCount,
-      'currentHandCount':
-          currentHandCount,
+      'currentPackageCount': currentPackageCount,
+      'currentHandCount': currentHandCount,
       'disableCount': disableCount,
       'gameOutCount': gameOutCount,
       'enableEmpolyCount': enableEmpolyCount,
@@ -205,37 +193,28 @@ class BasicPiece {
     return MoveConfig(1);
   }
 
-  PieceEventBuildData Move(
-      GameController game) {
+  PieceEventBuildData Move(GameController game) {
     logD("try Move ");
-    PieceEventBuildData data =
-        PieceEventBuildData();
-    Completer<bool> moveCompleter =
-        Completer();
+    PieceEventBuildData data = PieceEventBuildData();
+    Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
-    final layoutNode =
-        GetCurrentLayoutNode(game);
+    final layoutNode = GetCurrentLayoutNode(game);
 
     if (layoutNode != null) {
       // NOTE: 2 获取周围的格子中，可以被移动的格子
-      final sroundNodes =
-          layoutNode.GetSroundedNodes(
-              game: game,
-              func: (LayoutNode node) {
-                return node.piece ==
-                    null;
-              },
-              deep: GetMoveConfig()
-                  .moveRange);
+      final sroundNodes = layoutNode.GetSroundedNodes(
+          game: game,
+          func: (LayoutNode node) {
+            return node.piece == null;
+          },
+          deep: GetMoveConfig().moveRange);
 
-      logD(
-          "sroundNodes ${sroundNodes.length}");
+      logD("sroundNodes ${sroundNodes.length}");
       sroundNodes.forEach((e) {
         final event = PieceMoveEvent();
         event.originNode = layoutNode;
         event.targetNode = e;
-        event.playerId =
-            GetPlayer(game).id;
+        event.playerId = GetPlayer(game).id;
         event.completer = moveCompleter;
         event.pieceId = index;
         data.events.add(event);
@@ -246,37 +225,30 @@ class BasicPiece {
       });
       game.onRefresh?.call();
     } else {
-      logE(
-          "without piece ${this.name} in map");
+      logE("without piece ${this.name} in map");
     }
 
-    moveCompleter.future.then((value) =>
-        data.completer
-            .safeComplete(value));
+    moveCompleter.future.then(
+        (value) => data.completer.safeComplete(value));
     return data;
   }
 
-  List<LayoutNode>
-      GetNodesEnablePlaceNewPiece(
-          GameController game) {
+  List<LayoutNode> GetNodesEnablePlaceNewPiece(
+      GameController game) {
     final p = GetPlayer(game);
     return p.importantNodes;
   }
 
-  LayoutNode? GetCurrentLayoutNode(
-      GameController game) {
+  LayoutNode? GetCurrentLayoutNode(GameController game) {
     return game.map.nodes.entries
-        .where((element) =>
-            element.value.piece == this)
+        .where((element) => element.value.piece == this)
         .firstOrNull
         ?.value;
   }
 
-  PlayerInfo GetPlayer(
-      GameController game) {
+  PlayerInfo GetPlayer(GameController game) {
     return game.playerA.selectAbleItem
-            .where((element) =>
-                element == this)
+            .where((element) => element == this)
             .isNotEmpty
         ? game.playerA
         : game.playerB;
@@ -286,77 +258,56 @@ class BasicPiece {
       {int deep = 1,
       required GameController game,
       Function? func}) {
-    final node =
-        GetCurrentLayoutNode(game);
+    final node = GetCurrentLayoutNode(game);
     if (node != null) {
       return node.GetSroundedNodes(
-          deep: deep,
-          game: game,
-          func: func);
+          deep: deep, game: game, func: func);
     }
 
     return [];
   }
 
-  PieceEventBuildData Attack(
-      GameController game) {
+  PieceEventBuildData Attack(GameController game) {
     logD("Attack ");
-    PieceEventBuildData data =
-        PieceEventBuildData();
-    Completer<bool> moveCompleter =
-        Completer();
+    PieceEventBuildData data = PieceEventBuildData();
+    Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
-    final layoutNodeEntry = game
-        .map.nodes.entries
-        .where((element) =>
-            element.value.piece == this)
+    final layoutNodeEntry = game.map.nodes.entries
+        .where((element) => element.value.piece == this)
         .firstOrNull;
     if (layoutNodeEntry != null) {
       // NOTE: 2 获取周围的格子中，可以被移动的格子
-      final node =
-          layoutNodeEntry.value;
+      final node = layoutNodeEntry.value;
 
       // NOTE: 3 找到对应的玩家
-      final player = game
-              .playerA.selectAbleItem
-              .where((element) =>
-                  element == this)
+      final player = game.playerA.selectAbleItem
+              .where((element) => element == this)
               .isNotEmpty
           ? game.playerA
           : game.playerB;
 
-      final sroundNodes = game
-          .map.nodes.entries
+      final sroundNodes = game.map.nodes.entries
           .where((element) =>
-              element.value.piece !=
-                  null &&
+              element.value.piece != null &&
               !player.selectAbleItem
-                  .contains(element
-                      .value.piece))
+                  .contains(element.value.piece))
           .where((element) {
         // logD("sroundNodes ${element.key} ${ node.sroundNodeOffsets}");
-        return node.sroundNodeOffsets
-            .where((sOffset) {
-          final comResult =
-              sOffset - element.key;
+        return node.sroundNodeOffsets.where((sOffset) {
+          final comResult = sOffset - element.key;
           // logD("sroundNodes $comResult");
-          return comResult.distance <
-              10;
+          return comResult.distance < 10;
         }).isNotEmpty;
       }).map((e) => e.value);
-      logD(
-          "sroundNodes ${sroundNodes.length}");
+      logD("sroundNodes ${sroundNodes.length}");
 
       sroundNodes.forEach((e) {
         final enemy = e.piece;
         if (enemy != null) {
-          final event =
-              PieceAttackEvent();
+          final event = PieceAttackEvent();
           event.pieceId = index;
-          event.playerId =
-              GetPlayer(game).id;
-          event.completer =
-              moveCompleter;
+          event.playerId = GetPlayer(game).id;
+          event.completer = moveCompleter;
           event.attacker = this;
           event.enemy = enemy;
           event.enemyNode = e;
@@ -367,79 +318,64 @@ class BasicPiece {
           };
         }
       });
-      logD(
-          "${game.map.nodes.entries.where((e) {
-        return e.value
-                .nextClickCallback !=
-            null;
+      logD("${game.map.nodes.entries.where((e) {
+        return e.value.nextClickCallback != null;
       })}");
       game.onRefresh?.call();
     } else {
-      logE(
-          "without piece $this in map");
+      logE("without piece $this in map");
     }
-    moveCompleter.future.then((value) =>
-        data.completer
-            .safeComplete(value));
+    moveCompleter.future.then(
+        (value) => data.completer.safeComplete(value));
     return data;
   }
 
-  Future<bool> Control(
+  PieceEventBuildData Control(
       GameController gameController) {
-    Completer<bool> completer =
-        Completer();
-    final layoutNodeEntry =
-        gameController.map.nodes.entries
-            .where((element) =>
-                element.value.piece ==
-                this)
-            .firstOrNull;
+    PieceEventBuildData data = PieceEventBuildData();
+    Completer<bool> completer = Completer();
+    data.completer = completer;
+    final layoutNodeEntry = gameController.map.nodes.entries
+        .where((element) => element.value.piece == this)
+        .firstOrNull;
     if (layoutNodeEntry != null) {
-      if (layoutNodeEntry
-          .value.isImportantNode) {
+      if (layoutNodeEntry.value.isImportantNode) {
         // NOTE: 3 找到对应的玩家
-        final player = gameController
-                .playerA.selectAbleItem
-                .where((element) =>
-                    element == this)
+        final player = gameController.playerA.selectAbleItem
+                .where((element) => element == this)
                 .isNotEmpty
             ? gameController.playerA
             : gameController.playerB;
         if (!player.importantNodes
-            .contains(layoutNodeEntry
-                .value)) {
-          layoutNodeEntry.value
-              .nextClickCallback = () {
-            logD("Do Control");
+            .contains(layoutNodeEntry.value)) {
 
-            player.importantNodes.add(
-                layoutNodeEntry.value);
-            gameController.onRefresh
-                ?.call();
-            completer
-                .safeComplete(true);
+          ControlEvent controlEvent = ControlEvent();
+          controlEvent.playerId = player.id;
+          controlEvent.pieceId = index;
+          controlEvent.nodeId = layoutNodeEntry.value.id;
+          controlEvent.completer = data.completer;
+          data.events.add(controlEvent);
+          layoutNodeEntry.value.nextClickCallback = () {
+            logD("Do Control $this");
+            gameController.OnEvent(controlEvent);
           };
         }
       }
     }
-    return completer.future;
+    return data;
   }
 
-  Future<bool> Skill(
-      GameController
-          gameController) async {
+  Future<bool> Skill(GameController gameController) async {
     logD("Skill ");
     return returnDisableFuture();
   }
 
-  bool CanAfterMove(
-      GameController gameController) {
+  bool CanAfterMove(GameController gameController) {
     return false;
   }
 
   PieceEventBuildData AfterMove(
-      GameController
-          gameController) {
+      GameController gameController) {
     return PieceEventBuildData();
   }
 

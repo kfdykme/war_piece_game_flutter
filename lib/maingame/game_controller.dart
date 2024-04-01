@@ -22,6 +22,8 @@ class GameController {
 
   HexagonMap map = HexagonMap();
 
+  bool isEndGame = false;
+
   PlayerInfo? _currentPlayer;
 
   set currentPlayer(v) {
@@ -59,10 +61,11 @@ class GameController {
   void OnEvent(BaseGameEvent event) {
     final player = GetPlayerById(event.playerId);
     final safePiece = player.GetPieceByIndex(event.pieceId);
-    
+
     logD("EventLoop OnEvent $event ${safePiece?.name}");
     if (event is OnClickPieceEvent) {
-      final safePiece = player.GetPieceByIndex(event.pieceId);
+      final safePiece =
+          player.GetPieceByIndex(event.pieceId);
       if (safePiece != null) {
         player.onClickPiece(safePiece, this).then((value) {
           logD("onClickPiece result $value");
@@ -71,16 +74,22 @@ class GameController {
       }
       return;
     } else if (event is ArragePieceEvent) {
-      final node = map.nodes.entries.where((element) => element.value.id == event.nodeId).firstOrNull?.value;
+      final node = map.nodes.entries
+          .where(
+              (element) => element.value.id == event.nodeId)
+          .firstOrNull
+          ?.value;
       if (node != null && safePiece != null) {
-        if ((node.piece == null && safePiece.hp == 0) || node.piece == safePiece) {
-          if (node.piece != null && node.piece != safePiece) {
+        if ((node.piece == null && safePiece.hp == 0) ||
+            node.piece == safePiece) {
+          if (node.piece != null &&
+              node.piece != safePiece) {
             logD("already has piece here");
             event.completer.safeComplete(false);
           } else {
             logD("add to here");
             safePiece.hp += 1;
-            assert(safePiece.enableEmpolyCount >0 );
+            assert(safePiece.enableEmpolyCount > 0);
             safePiece.enableEmpolyCount -= 1;
             node.piece = safePiece;
 
@@ -90,8 +99,9 @@ class GameController {
         }
       }
     } else if (event is RecruitPieceEvent) {
-      final safePiece = player.GetPieceByIndex(event.pieceId);
-      if(safePiece != null) {
+      final safePiece =
+          player.GetPieceByIndex(event.pieceId);
+      if (safePiece != null) {
         safePiece.currentPackageCount++;
         player.comsumePiece(safePiece);
         event.completer.safeComplete(true);
@@ -112,15 +122,34 @@ class GameController {
       }
     } else if (event is PieceAttackEvent) {
       if (safePiece != null) {
-        event.attacker.DoAttack(event.enemy, event.enemyNode, this);
+        event.attacker
+            .DoAttack(event.enemy, event.enemyNode, this);
         onRefresh?.call();
         event.completer.safeComplete(true);
+      }
+    } else if (event is ControlEvent) {
+      final node = map.nodes.entries
+          .where(
+              (element) => element.value.id == event.nodeId)
+          .firstOrNull
+          ?.value;
+      if (node != null && safePiece != null) {
+        player.importantNodes.add(node);
+        onRefresh?.call();
+        event.completer.safeComplete(true);
+        if (player.importantNodes.length >= 6) {
+          win(player);
+        }
       }
     }
 
     if (!event.completer.isCompleted) {
       logE("EventLoop Not Complete $event $safePiece");
     }
+  }
+
+  win(PlayerInfo playerInfo) {
+    isEndGame = true;
   }
 
   start() {

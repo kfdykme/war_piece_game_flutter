@@ -20,3 +20,7 @@ class ArragePieceEvent extends BaseGameEvent {
 class SkipEvent extends BaseGameEvent {
   
 }
+
+class ControlEvent extends BaseGameEvent {
+  int nodeId = 0;
+}

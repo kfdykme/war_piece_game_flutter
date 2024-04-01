@@ -23,17 +23,25 @@ class PlayerInfoAi extends PlayerInfo {
   }
 
   BaseGameEvent GetNextRandomeGameEvent() {
-    return enableEvent[Random().nextInt(enableEvent.length)];
+    final skip =  enableEvent[Random().nextInt(enableEvent.length)];
+    if (enableEvent.length > 1 && skip is SkipEvent) {
+      return GetNextRandomeGameEvent();
+    } 
+    return skip;
   }
 
     @override
   Future<void> OnPlayerTurn() async { 
     sCount++;
-    if (kDebugMode) {
-      if (sCount> 1000) {
-        logE("EventLoop max");
-        return;
-      }
+    // if (kDebugMode) {
+    //   if (sCount> 1000) {
+    //     logE("EventLoop max");
+    //     return;
+    //   }
+    // }
+    if (gameController.isEndGame) {
+      logD("EventLoop Game End");
+      return;
     }
     await Future.delayed(const Duration(milliseconds: 1));
     // logD("EventLoop OnPlayerTurn wait $this");

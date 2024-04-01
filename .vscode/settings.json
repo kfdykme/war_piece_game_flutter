@@ -1,4 +1,5 @@
 {
     "cmake.configureOnOpen": false,
     "dart.flutterSdkPath": "/Users/chenxiaofang/Desktop/libs/flutter",
+    "dart.lineLength": 60,
 }
