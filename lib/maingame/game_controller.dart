@@ -80,6 +80,7 @@ class GameController {
           } else {
             logD("add to here");
             safePiece.hp += 1;
+            assert(safePiece.enableEmpolyCount >0 );
             safePiece.enableEmpolyCount -= 1;
             node.piece = safePiece;
 

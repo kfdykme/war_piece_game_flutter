@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
@@ -47,6 +48,8 @@ class BasicPiece {
   String name;
 
   Function? nextClickCallback;
+
+  Color? color;
   BasicPiece(
       {required this.index,
       this.maxAllowCount = 5,
@@ -71,6 +74,7 @@ class BasicPiece {
       BasicPiece enemyPiece,
       LayoutNode node,
       GameController game) {
+    logD("DoAttack $this -> $enemyPiece");
     final outCount = min(hp, enemyPiece.hp);
     enemyPiece.hp -= hp;
     enemyPiece.gameOutCount += outCount;
@@ -84,7 +88,7 @@ class BasicPiece {
   void OnAttack(
       BasicPiece attackerPiece,
       GameController game) {
-    logD("OnAttack");
+    logD("OnAttack $this");
   }
 
   static BasicPiece build(
@@ -174,6 +178,7 @@ class BasicPiece {
 
   @override
   String toString() { 
+    assert(enableEmpolyCount >= 0);
     assert(maxAllowCount == enableEmpolyCount + gameOutCount + disableCount + currentPackageCount + currentHandCount + hp);
     return jsonEncode(Map.from({
       'name': name,

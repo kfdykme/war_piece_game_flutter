@@ -18,6 +18,7 @@ mixin PlayerInfoLogic {
   Function? nextSkipCallback;
 
   int playerId = 0;
+  Color? playerColor;
 
   void SetPlayerId(int id) {
     playerId = id;
@@ -60,8 +61,8 @@ mixin PlayerInfoLogic {
       List<BaseGameEvent> clickPieceNextEvents = [];
       enablePlaceNodes.forEach((element) {
         // NOTE: 1.
-        if ((element.piece == null && piece.hp == 0) ||
-            element.piece == piece) {
+        if (((element.piece == null && piece.hp == 0) ||
+            element.piece == piece ) && piece.enableEmpolyCount > 0) {
           final e = ArragePieceEvent();
           e.completer = clickComsumePieceCompleter;
           e.nodeId = element.id;
@@ -255,6 +256,10 @@ mixin PlayerInfoLogic {
 
   }
 
+  void SetColor(Color color) {
+    playerColor = color;
+  }
+
   Function? ui;
 
   void bindNotifyUI(Function function) {
@@ -285,6 +290,7 @@ mixin PlayerInfoLogic {
     final piece = BasicPiece.build(
         index: index, currentPackageCount: 2);
     piece.enableEmpolyCount = piece.maxAllowCount - piece.currentPackageCount;
+    piece.color = playerColor;
     selectAbleItem.add(piece);
   }
 

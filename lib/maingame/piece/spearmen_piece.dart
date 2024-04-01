@@ -19,8 +19,9 @@ class SperamenPiece extends BasicPiece {
       return node.piece == attackerPiece;
     }).firstOrNull?.piece;
     if (nearAttackerPiece != null) { 
-      if (nearAttackerPiece.enableEmpolyCount == 0) {
-        if (nearAttackerPiece.currentPackageCount > 0) {
+      if (nearAttackerPiece.enableEmpolyCount > 0) {
+        nearAttackerPiece.enableEmpolyCount--;
+      } else  if (nearAttackerPiece.currentPackageCount > 0) {
           nearAttackerPiece.currentPackageCount--;
         } else if (nearAttackerPiece.disableCount > 0) {
           nearAttackerPiece.disableCount--;
@@ -33,7 +34,7 @@ class SperamenPiece extends BasicPiece {
             node?.piece = null;
           }
         }
-      }
+
      nearAttackerPiece.gameOutCount++;
     }
   }

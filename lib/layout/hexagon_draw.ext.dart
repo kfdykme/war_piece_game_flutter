@@ -101,6 +101,11 @@ mixin HexagonDrawExtension {
     if (node.isClickAble) {
       currentHexagonColor = Colors.tealAccent;
     }
+    
+    final safePiece = node.piece;
+    if (safePiece != null && safePiece.color != null) {
+      currentHexagonColor = safePiece.color!;
+    }
     canvas.save();
     canvas.translate(node.locationOffset.dx, node.locationOffset.dy);
     canvas.drawPath(node.boxPath, Paint()..color = currentHexagonColor);
