@@ -38,6 +38,8 @@ class HeavyCavalryPiece extends BasicPiece {
           attackEvent.enemy = piece;
           attackEvent.enemyNode = element;
           attackEvent.attacker = this;
+          attackEvent.completer = data.completer;
+          data.events.add(attackEvent);
           element.nextClickCallback = () {
             gameController.OnEvent(attackEvent);
             // DoAttack(piece, element, gameController);

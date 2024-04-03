@@ -68,7 +68,7 @@ class GameController {
           player.GetPieceByIndex(event.pieceId);
       if (safePiece != null) {
         player.onClickPiece(safePiece, this).then((value) {
-          logD("onClickPiece result $value");
+          logD("EventLoop onClickPiece result $value ======================");
           nextPlayer();
         });
       }
@@ -88,21 +88,21 @@ class GameController {
             event.completer.safeComplete(false);
           } else {
             logD("add to here");
-            safePiece.hp += 1;
-            assert(safePiece.enableEmpolyCount > 0);
-            safePiece.enableEmpolyCount -= 1;
+            safePiece.hp += 1; 
             node.piece = safePiece;
+            player.comsumePiece(safePiece, disableCount: false);
 
             event.completer.safeComplete(true);
-            player.comsumePiece(safePiece);
           }
         }
       }
     } else if (event is RecruitPieceEvent) {
       final safePiece =
           player.GetPieceByIndex(event.pieceId);
-      if (safePiece != null) {
-        safePiece.currentPackageCount++;
+      final targetPiece = player.GetPieceByIndex(event.targetPieceId);
+      if (safePiece != null && targetPiece != null) {
+        targetPiece.currentPackageCount++;
+        targetPiece.enableEmpolyCount--;
         player.comsumePiece(safePiece);
         event.completer.safeComplete(true);
       }
@@ -135,6 +135,8 @@ class GameController {
           ?.value;
       if (node != null && safePiece != null) {
         player.importantNodes.add(node);
+        final otherPlayer = playerA.id == player.id ? playerB : playerA;
+        otherPlayer.importantNodes = otherPlayer.importantNodes.where((element) => element.id != node.id).toList();
         onRefresh?.call();
         event.completer.safeComplete(true);
         if (player.importantNodes.length >= 6) {
@@ -150,6 +152,8 @@ class GameController {
 
   win(PlayerInfo playerInfo) {
     isEndGame = true;
+    logD('EventLoop win ${playerA.selectAbleItem}');
+    logD('EventLoop win ${playerB.selectAbleItem}');
   }
 
   start() {

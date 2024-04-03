@@ -24,7 +24,9 @@ mixin PlayerInfoLogic {
     playerId = id;
   }
 
-  void OnPlayerTurn() {}
+  void OnPlayerTurn() {
+    getNextRandomPieces();
+  }
 
   List<BaseGameEvent> enableEvent = [];
 
@@ -62,7 +64,8 @@ mixin PlayerInfoLogic {
       enablePlaceNodes.forEach((element) {
         // NOTE: 1.
         if (((element.piece == null && piece.hp == 0) ||
-            element.piece == piece ) && piece.enableEmpolyCount > 0) {
+                element.piece == piece) &&
+            piece.enableEmpolyCount > 0) {
           final e = ArragePieceEvent();
           e.completer = clickComsumePieceCompleter;
           e.nodeId = element.id;
@@ -79,33 +82,22 @@ mixin PlayerInfoLogic {
 
       // NOTE: 招募
       selectAbleItem.forEach((selectAble) {
-        if (selectAble.currentPackageCount +
-                selectAble.currentHandCount +
-                selectAble.disableCount <
-            selectAble.maxAllowCount) {
-          selectAble.nextClickCallback = () {
-            // final e = RecruitPieceEvent();
-            // e.completer = clickComsumePieceCompleter;
-            // e.pieceId = selectAble.index;
-            // e.playerId = playerId;
-            // clickPieceNextEvents.add(e);
-            // selectAble.nextClickCallback =
-            //     () {
+        if (selectAble.enableEmpolyCount > 0) {
+           final e = RecruitPieceEvent();
+            e.completer = clickComsumePieceCompleter;
+            e.pieceId = piece.index;
+            e.playerId = playerId;
+            e.targetPieceId = selectAble.index;
+            clickPieceNextEvents.add(e);
+            selectAble.nextClickCallback =
+                () {
 
-            //   gameController.OnEvent(e);
-            //   cancelOtherAllClickableEvent(
-            //       gameController);
-            //   notifyUI();
-            //   return clickComsumePieceCompleter.future;
-            // };
-            //   selectAble
-            //       .currentPackageCount++;
-            //   comsumePiece(piece);
-            //   cancelOtherAllClickableEvent(
-            //       gameController);
-            //   notifyUI();
-            //   return true;
-          };
+              gameController.OnEvent(e);
+              cancelOtherAllClickableEvent(
+                  gameController);
+              notifyUI();
+              return clickComsumePieceCompleter.future;
+            };
         }
       });
 
@@ -134,6 +126,7 @@ mixin PlayerInfoLogic {
               piece.AfterMove(gameController);
           afterEvents.addAll(afterMoveData.events);
           afterMoveData.completer.future.then((value) {
+            logD("EventLoop AfterMove ");
             cancelOtherAllClickableEvent(gameController);
             notifyUI();
             clickComsumePieceCompleter.safeComplete(true);
@@ -185,9 +178,7 @@ mixin PlayerInfoLogic {
         }
       });
 
-
-
-      final controlData =  piece.Control(gameController);
+      final controlData = piece.Control(gameController);
       clickPieceNextEvents.addAll(controlData.events);
       controlData.completer.future.then((value) {
         if (value) {
@@ -198,7 +189,9 @@ mixin PlayerInfoLogic {
         clickComsumePieceCompleter.safeComplete(value);
       });
 
-      piece.Skill(gameController).then((value) {
+      final skillData = piece.Control(gameController);
+      clickPieceNextEvents.addAll(skillData.events);
+      skillData.completer.future.then((value) {
         if (value) {
           comsumePiece(piece);
           cancelOtherAllClickableEvent(gameController);
@@ -242,7 +235,8 @@ mixin PlayerInfoLogic {
     });
   }
 
-  void comsumePiece(BasicPiece piece) {
+  void comsumePiece(BasicPiece piece,
+      {bool disableCount = true}) {
     final hitPiece = selectAbleItem
         .where((element) => element.index == piece.index)
         .firstOrNull;
@@ -250,14 +244,16 @@ mixin PlayerInfoLogic {
     if (hitPiece != null) {
       assert(hitPiece.currentHandCount > 0);
       hitPiece.currentHandCount--;
-      hitPiece.disableCount++;
-      
-      if (!hasHandItem) {
-        getNextRandomPieces();
-        notifyUI();
+      if (disableCount) {
+        hitPiece.disableCount++;
+        
+        if (!hasHandItem) {
+          getNextRandomPieces();
+          notifyUI();
+        }
       }
-    }
 
+    }
   }
 
   void SetColor(Color color) {
@@ -293,7 +289,8 @@ mixin PlayerInfoLogic {
   void fillPiece(int index) {
     final piece = BasicPiece.build(
         index: index, currentPackageCount: 2);
-    piece.enableEmpolyCount = piece.maxAllowCount - piece.currentPackageCount;
+    piece.enableEmpolyCount =
+        piece.maxAllowCount - piece.currentPackageCount;
     piece.color = playerColor;
     selectAbleItem.add(piece);
   }
@@ -307,23 +304,21 @@ mixin PlayerInfoLogic {
       selectAbleItem.add(GlodenPiece());
     }
   }
-
-  int count = 0;
-  BasicPiece _getSingleRandomePiece() {
-    count++;
-    final allowItems = selectAbleItem.where((element) => element.currentPackageCount > 0).toList();
-    if (allowItems.isNotEmpty){
+ 
+  BasicPiece? _getSingleRandomePiece() { 
+    var allowItems = selectAbleItem
+        .where((element) => element.currentPackageCount > 0)
+        .toList();
+    if (allowItems.isNotEmpty) {
       final randomIndex =
           Random().nextInt(allowItems.length);
       if (allowItems[randomIndex].currentPackageCount > 0) {
         allowItems[randomIndex].currentPackageCount--;
-        allowItems[randomIndex].currentHandCount++;
-        count = 0;
+        allowItems[randomIndex].currentHandCount++; 
         return allowItems[randomIndex];
       }
     }
-
-    assert(count < 10);
+ 
     if (selectAbleItem
         .where((element) => element.currentPackageCount > 0)
         .isEmpty) {
@@ -336,7 +331,15 @@ mixin PlayerInfoLogic {
         element.disableCount = 0;
       });
     }
-    return _getSingleRandomePiece();
+     allowItems = selectAbleItem
+        .where((element) => element.currentPackageCount > 0)
+        .toList();
+    if (allowItems.isNotEmpty) {
+
+      return _getSingleRandomePiece();
+    } else {
+      return null;
+    }
   }
 
   List<BasicPiece> getNextRandomPieces({int count = 3}) {
@@ -345,7 +348,11 @@ mixin PlayerInfoLogic {
       return result;
     }
     for (int x = 0; x < count; x++) {
-      result.add(_getSingleRandomePiece());
+      final next = _getSingleRandomePiece();
+      if (next == null) {
+        break;
+      }
+      result.add(next);
     }
     return result;
   }

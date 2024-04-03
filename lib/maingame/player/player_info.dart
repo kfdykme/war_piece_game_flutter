@@ -20,7 +20,7 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic  {
   static PlayerInfo? playerInfoA;
 
   static PlayerInfo get playerA  {
-    return playerInfoA ??= PlayerInfoAi(playerAId);
+    return playerInfoA ??= PlayerInfo(playerAId);
   }
 
   

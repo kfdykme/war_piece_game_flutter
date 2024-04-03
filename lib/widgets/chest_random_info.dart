@@ -48,7 +48,7 @@ class ChestRandomInfoState extends State<ChestRandomInfo> {
       if (comsumePiece) {
         context.game.nextPlayer();
       }
-      logD("on pay piece $comsumePiece");
+      logD("EventLoop on pay piece $comsumePiece");
     },child: Container(
       color: enableClick ? Colors.tealAccent : null,
       child:  Flex(

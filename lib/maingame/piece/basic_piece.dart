@@ -365,9 +365,9 @@ class BasicPiece {
     return data;
   }
 
-  Future<bool> Skill(GameController gameController) async {
+  PieceEventBuildData Skill(GameController gameController) {
     logD("Skill ");
-    return returnDisableFuture();
+    return PieceEventBuildData();
   }
 
   bool CanAfterMove(GameController gameController) {

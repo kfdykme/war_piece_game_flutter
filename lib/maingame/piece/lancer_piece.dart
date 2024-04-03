@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:warx_flutter/layout/layout_node.dart';
+import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
@@ -19,8 +20,8 @@ class LancerPiece extends BasicPiece {
   }
 
   @override
-  Future<bool> Skill(GameController gameController) {
-    logD("try Skill");
+  PieceEventBuildData Skill(GameController gameController) { 
+    PieceEventBuildData data = PieceEventBuildData();
     final node = GetCurrentLayoutNode(gameController);
     if (node != null) {
       final p = GetPlayer(gameController);
@@ -30,18 +31,28 @@ class LancerPiece extends BasicPiece {
        
 
       Completer<bool> completer = Completer();
+      data.completer = completer;
       sroundNodes.forEach((element) {
-        element.nextClickCallback = () {
+       final piece = element.piece;
 
-          final piece = element.piece;
-          if (piece != null) {
-           DoAttack(piece, element, gameController);
-          }
-          gameController.onRefresh?.call();
-          completer.safeComplete(true); 
-        };
+        if (piece != null) {
+          PieceAttackEvent attackEvent = PieceAttackEvent();
+          attackEvent.playerId = GetPlayer(gameController).id;
+          attackEvent.pieceId = index;
+          attackEvent.enemy = piece;
+          attackEvent.enemyNode = element;
+          attackEvent.attacker = this;
+          attackEvent.completer = data.completer;
+          data.events.add(attackEvent);
+          element.nextClickCallback = () {
+            gameController.OnEvent(attackEvent);
+            // DoAttack(piece, element, gameController);
+            // gameController.onRefresh?.call();
+            // completer.safeComplete(true); 
+          };
+        }
       });
-      return completer.future;
+      return data;
     }
     return super.Skill(gameController);
   }

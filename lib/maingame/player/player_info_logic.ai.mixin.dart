@@ -17,6 +17,7 @@ class PlayerInfoAi extends PlayerInfo {
 
   @override
   void enableTurnStartEvent(GameController gameController) {
+    logD("EventLoop enableTurnStartEvent $this");
     // TODO: implement enableTurnStartEvent
     super.enableTurnStartEvent(gameController);
     this.gameController = gameController;
@@ -27,6 +28,12 @@ class PlayerInfoAi extends PlayerInfo {
     if (enableEvent.length > 1 && skip is SkipEvent) {
       return GetNextRandomeGameEvent();
     } 
+    if (skip is RecruitPieceEvent && enableEvent.where((element) {
+      return !(element is RecruitPieceEvent) && !(element is SkipEvent);
+    }).isNotEmpty && selectAbleItem.where((element) => element.hp > 0).isEmpty) {
+      enableEvent = enableEvent.where((element) => !(element is RecruitPieceEvent)).toList();
+      return GetNextRandomeGameEvent();
+    }
     return skip;
   }
 
@@ -43,16 +50,21 @@ class PlayerInfoAi extends PlayerInfo {
       logD("EventLoop Game End");
       return;
     }
-    await Future.delayed(const Duration(milliseconds: 1));
+    await Future.delayed(const Duration(milliseconds: 2000));
     // logD("EventLoop OnPlayerTurn wait $this");
-    logD("EventLoop OnPlayerTurn start $this $sCount");
+    logD("EventLoop OnPlayerTurn start $this $sCount ${gameController.currentPlayer as PlayerInfo}");
     if (enableEvent.isEmpty) {
       logE("EventLoop empty");
+      getNextRandomPieces(); 
+      enableTurnStartEvent(gameController);
+      if (enableEvent.isNotEmpty) {
+        OnPlayerTurn();
+      }
       return;
     }
     logD("EventLoop enableEvents $enableEvent");
     final randomAiEvent = GetNextRandomeGameEvent() ;
-
+logD("EventLoop OnPlayerTurn $randomAiEvent");
     if (randomAiEvent is OnClickPieceEvent) {
             final event = OnClickPieceEvent();
             final pieces = selectAbleItem.where((element) => element.currentHandCount > 0).toList();
