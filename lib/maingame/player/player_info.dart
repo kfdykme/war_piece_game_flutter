@@ -8,6 +8,7 @@ import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/maingame/piece/gloden_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info_logic.ai.mixin.dart';
 import 'package:warx_flutter/maingame/player/player_info_logic.ext.dart';
+import 'package:warx_flutter/maingame/player/player_info_network.dart';
 import 'package:warx_flutter/maingame/player/player_info_ui.ext.dart'; 
 import 'package:warx_flutter/util/color.random.extension.dart';
 
@@ -20,13 +21,13 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic  {
   static PlayerInfo? playerInfoA;
 
   static PlayerInfo get playerA  {
-    return playerInfoA ??= PlayerInfoAi(playerAId);
+    return playerInfoA ??= PlayerInfoNetwork(playerAId);
   }
 
   
   static PlayerInfo? playerInfoB;
   static PlayerInfo get playerB  {
-    return playerInfoB ??= PlayerInfoAi(palyerBId);
+    return playerInfoB ??= PlayerInfoNetwork(palyerBId);
   }
 
   final int id;

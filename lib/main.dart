@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:warx_flutter/layout/hexagon_layout.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
+import 'package:warx_flutter/pages/player_select_page.dart';
 import 'package:warx_flutter/resources/resource_manager.dart';
+import 'package:warx_flutter/util/color.random.extension.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/state.extension.dart';
 import 'package:warx_flutter/widgets/game_header.dart';
@@ -41,74 +43,10 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black.randomColor()),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  bool isReady = false;
-  @override
-  void initState() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft, //全屏时旋转方向，左边
-    ]);
-    super.initState();
-
-    ResourceManager.i.loadImage();
-    ResourceManager.i.ready.then((value) {
-      isReady = true;
-      setStateIfMounted();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    context.game.setRefresh(() {
-      setStateIfMounted();
-    });
-    if (!isReady) {
-      return Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          HexagonContainer(
-              width: size.width,
-              height: size.height),
-          GameHeader(controller: context.read<GameController>()),
-          if (context.game.currentTurn == GameTurn.banpick) GameBanPick(controller: context.read<GameController>())
-          else if (context.game.currentTurn == GameTurn.game) GamePlayerInfoContainer()
-        ],
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      home: PlayerSelectPage(),
     );
   }
 }

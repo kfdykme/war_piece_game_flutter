@@ -27,8 +27,9 @@ class GamePlayerInfoContainterState extends State<GamePlayerInfoContainer> {
     return Container(width: size.width, height: size.height, child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GamePlayerInfoSingleItem(context.game.playerA),
-        GamePlayerInfoSingleItem(context.game.playerB),
+        if (context.game.localPlayer != null) 
+        GamePlayerInfoSingleItem(context.game.localPlayer!),
+        // GamePlayerInfoSingleItem(context.game.playerB),
       ],) ,);
   }
 }
@@ -70,8 +71,10 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
   @override
   Widget build(BuildContext context) {
     final size = context.mSize();
-    final width = (size.width - size.height) / 2;
-
+    var width = (size.width - size.height) / 2;
+    if (width < 0) {
+      width = size.width;
+    }
     final isCurrentActivePlayer = context.game.currentPlayer == widget.info;
     logD("Player ${widget.info.id} is current $isCurrentActivePlayer");
     return Container(color: widget.info.color, width: width, height: size.height - 100,
@@ -80,7 +83,7 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
         // TITLE
         Text("${widget.info.id} ", style: TextStyle(fontWeight: FontWeight.w600, color: widget.info.color),),
         // Status
-        Text("${widget.info.name} ${isCurrentActivePlayer ? 'ING' : ''} ${widget.info.turnCount}"),
+        Text("${widget.info.name} ${isCurrentActivePlayer ? 'ING' : ''} - ${widget.info.turnCount}"),
         Text("${widget.info.isWinner ? 'WINNER' : ''}"),
         ChestRandomInfo(widget.info),
         ChestItemList(widget.info),

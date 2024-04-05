@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:warx_flutter/maingame/event/event_completer.dart';
 import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
@@ -52,6 +53,8 @@ String BaseGameEventToString(BaseGameEvent baseGameEvent) {
   Map<String,dynamic> maps = {};
   maps['playerId'] = baseGameEvent.playerId;
   maps['pieceId'] = baseGameEvent.pieceId;
+  maps['completerId'] = EventCompleter.GetCompleterId(baseGameEvent.completer);
+  assert(maps['completerId'] > 0);
   if (baseGameEvent is ControlEvent) {
     maps['nodeId'] = baseGameEvent.nodeId;
     maps['type'] = GameEventType.control;
@@ -81,11 +84,20 @@ String BaseGameEventToString(BaseGameEvent baseGameEvent) {
 
 BaseGameEvent? StringToBaseGameEvent(String baseGameEventString) {
   try {
-    final map = jsonDecode(baseGameEventString);
-    final type = map['type'] as GameEventType;
+    final maps = jsonDecode(baseGameEventString);
+    final type = maps['type'] as GameEventType;
+    final completerId = maps['completerId'] as int;
+    final complter = EventCompleter.GetCompleterById<bool>(completerId);
+    BaseGameEvent? event;
     if (type == GameEventType.click) {
-      
+      OnClickPieceEvent onClickPieceEvent = OnClickPieceEvent();
+      event = onClickPieceEvent;
     }
+
+    event?.playerId = maps['playerId'] as int;
+    event?.pieceId = maps['pieceId'] as int;
+    event?.completer = complter;
+    return event;
   } catch (e) {
     baseGameEventString.logE('StringToBaseGameEvent $e');
   }

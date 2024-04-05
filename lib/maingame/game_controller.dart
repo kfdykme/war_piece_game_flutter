@@ -27,6 +27,9 @@ class GameController {
 
   PlayerInfo? _currentPlayer;
 
+  // 本地玩家
+  PlayerInfo? localPlayer;
+
   set currentPlayer(v) {
     if (_currentPlayer != null) {
       _currentPlayer?.enableEvent.clear();
@@ -85,14 +88,12 @@ class GameController {
   
   Future<void> _InnerOnEvent(BaseGameEvent event) async {
 
-    await networkBase.OnEvent(event);
     final player = GetPlayerById(event.playerId);
+    await networkBase.OnEvent(event, player);
     final safePiece = player.GetPieceByIndex(event.pieceId);
 
     logD("EventLoop OnEvent $event ${safePiece?.name}");
-    if (event is OnClickPieceEvent) {
-      final safePiece =
-          player.GetPieceByIndex(event.pieceId);
+    if (event is OnClickPieceEvent) { 
       if (safePiece != null) {
         player.onClickPiece(safePiece, this).then((value) {
           logD("EventLoop onClickPiece result $value ======================");
@@ -212,6 +213,7 @@ class GameController {
   }
 
   void nextPlayer() {
+    logD("nextPlayer old $currentPlayer");
     if (currentPlayer == null) {
       // TODO: 默认开始
       currentPlayer = playerA;

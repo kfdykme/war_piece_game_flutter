@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:warx_flutter/layout/layout_node.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
+import 'package:warx_flutter/maingame/event/event_completer.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/archer_piece.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
@@ -54,7 +55,7 @@ mixin PlayerInfoLogic {
     } else {
       //
       Completer<bool> clickComsumePieceCompleter =
-          Completer();
+          EventCompleter.GenerateCompleter<bool>();
       final enablePlaceNodes =
           piece.GetNodesEnablePlaceNewPiece(gameController);
       logD(
