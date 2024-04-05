@@ -20,7 +20,7 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic  {
   static PlayerInfo? playerInfoA;
 
   static PlayerInfo get playerA  {
-    return playerInfoA ??= PlayerInfo(playerAId);
+    return playerInfoA ??= PlayerInfoAi(playerAId);
   }
 
   
@@ -31,6 +31,8 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic  {
 
   final int id;
   late Color color;
+  int turnCount = 0;
+  bool isWinner = false;
   bool isWaitForAction = false;
   PlayerInfo(this.id) {
     if (id == playerAId) {

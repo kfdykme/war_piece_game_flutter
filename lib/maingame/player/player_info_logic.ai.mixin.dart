@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -9,7 +8,6 @@ import 'package:warx_flutter/maingame/player/player_info_logic.ext.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 class PlayerInfoAi extends PlayerInfo {
-
   late GameController gameController;
   PlayerInfoAi(super.id);
 
@@ -24,21 +22,30 @@ class PlayerInfoAi extends PlayerInfo {
   }
 
   BaseGameEvent GetNextRandomeGameEvent() {
-    final skip =  enableEvent[Random().nextInt(enableEvent.length)];
+    final skip =
+        enableEvent[Random().nextInt(enableEvent.length)];
     if (enableEvent.length > 1 && skip is SkipEvent) {
       return GetNextRandomeGameEvent();
-    } 
-    if (skip is RecruitPieceEvent && enableEvent.where((element) {
-      return !(element is RecruitPieceEvent) && !(element is SkipEvent);
-    }).isNotEmpty && selectAbleItem.where((element) => element.hp > 0).isEmpty) {
-      enableEvent = enableEvent.where((element) => !(element is RecruitPieceEvent)).toList();
+    }
+    if (skip is RecruitPieceEvent &&
+        enableEvent.where((element) {
+          return !(element is RecruitPieceEvent) &&
+              !(element is SkipEvent);
+        }).isNotEmpty &&
+        selectAbleItem
+            .where((element) => element.hp > 0)
+            .isEmpty) {
+      enableEvent = enableEvent
+          .where(
+              (element) => !(element is RecruitPieceEvent))
+          .toList();
       return GetNextRandomeGameEvent();
     }
     return skip;
   }
 
-    @override
-  Future<void> OnPlayerTurn() async { 
+  @override
+  Future<void> OnPlayerTurn() async {
     sCount++;
     // if (kDebugMode) {
     //   if (sCount> 1000) {
@@ -50,38 +57,48 @@ class PlayerInfoAi extends PlayerInfo {
       logD("EventLoop Game End");
       return;
     }
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(
+        const Duration(milliseconds: 1));
     // logD("EventLoop OnPlayerTurn wait $this");
-    logD("EventLoop OnPlayerTurn start $this $sCount ${gameController.currentPlayer as PlayerInfo}");
+    logD(
+        "EventLoop OnPlayerTurn start $this $sCount ${gameController.currentPlayer as PlayerInfo}");
     if (enableEvent.isEmpty) {
       logE("EventLoop empty");
-      getNextRandomPieces(); 
+      getNextRandomPieces();
       enableTurnStartEvent(gameController);
       if (enableEvent.isNotEmpty) {
         OnPlayerTurn();
       }
       return;
     }
-    logD("EventLoop enableEvents $enableEvent");
-    final randomAiEvent = GetNextRandomeGameEvent() ;
-logD("EventLoop OnPlayerTurn $randomAiEvent");
+    final randomAiEvent = GetNextRandomeGameEvent();
+    logD("EventLoop enableEvents $this $randomAiEvent in $enableEvent");
     if (randomAiEvent is OnClickPieceEvent) {
-            final event = OnClickPieceEvent();
-            final pieces = selectAbleItem.where((element) => element.currentHandCount > 0).toList();
-            if (pieces.isEmpty) {
-              getNextRandomPieces();
-              gameController.onReadyPlayerComplter.future.then((value) {
-                OnPlayerTurn();
-              });
-              return;
-            }
-            event.pieceId = pieces[Random().nextInt(pieces.length)].index;
-            event.playerId = id;
-            gameController.OnEvent(event);
+      final event = OnClickPieceEvent();
+      final pieces = selectAbleItem
+          .where((element) => element.currentHandCount > 0)
+          .toList();
+      if (pieces.isEmpty) {
+        getNextRandomPieces();
+        logD("EventLoop getNextRandomPieces");
+        gameController.onReadyPlayerComplter.future
+            .then((value) {
+          if (selectAbleItem
+              .where((element) => element.currentHandCount > 0)
+              .toList().isNotEmpty) {
+
+              OnPlayerTurn();
+          }
+        });
+        return;
+      }
+      event.pieceId =
+          pieces[Random().nextInt(pieces.length)].index;
+      event.playerId = id;
+      gameController.OnEvent(event);
     } else {
       gameController.OnEvent(randomAiEvent);
-      cancelOtherAllClickableEvent(
-          gameController);
+      cancelOtherAllClickableEvent(gameController);
       notifyUI();
     }
   }

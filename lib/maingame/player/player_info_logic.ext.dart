@@ -64,8 +64,7 @@ mixin PlayerInfoLogic {
       enablePlaceNodes.forEach((element) {
         // NOTE: 1.
         if (((element.piece == null && piece.hp == 0) ||
-                element.piece == piece) &&
-            piece.enableEmpolyCount > 0) {
+                element.piece == piece)) {
           final e = ArragePieceEvent();
           e.completer = clickComsumePieceCompleter;
           e.nodeId = element.id;
@@ -203,6 +202,9 @@ mixin PlayerInfoLogic {
       notifyUI();
 
       enableEvent.clear();
+      if (clickPieceNextEvents.length <= 1) {
+        logE("EventLoop GenerateEvents Error");
+      }
       enableEvent.addAll(clickPieceNextEvents);
       OnPlayerTurn();
       return clickComsumePieceCompleter.future;

@@ -51,7 +51,7 @@ class ResourceManager {
       File imageFile = File('resources/kenney_1-bit-pack/Tilemap/tileset_legacy.png');
       imageFile.statSync();
       imageBytes = await imageFile.readAsBytes();
-    } else if (Platform.isMacOS) {
+    } else if (Platform.isMacOS || Platform.isAndroid) {
       final bytes = await rootBundle.load('resources/kenney_1-bit-pack/Tilemap/tileset_legacy.png');
       imageBytes = bytes.buffer.asUint8List();
     }

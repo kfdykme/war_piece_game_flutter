@@ -79,12 +79,13 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
       Column(children: [
         // TITLE
         Text("${widget.info.id} ", style: TextStyle(fontWeight: FontWeight.w600, color: widget.info.color),),
-        // Status 
-        if(isCurrentActivePlayer)Text("${widget.info.name} ${widget.info.playerId} ing"),
+        // Status
+        Text("${widget.info.name} ${isCurrentActivePlayer ? 'ING' : ''} ${widget.info.turnCount}"),
+        Text("${widget.info.isWinner ? 'WINNER' : ''}"),
         ChestRandomInfo(widget.info),
         ChestItemList(widget.info),
-        Expanded(child: Container()),
-        ChestLastItemList(widget.info)
+        // Expanded(child: Container()),
+        // ChestLastItemList(widget.info)
       ])
     ,);
   } 

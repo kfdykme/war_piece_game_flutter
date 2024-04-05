@@ -92,10 +92,10 @@ class HexagonMapPainter extends CustomPainter with HexagonDrawExtension, Hexagon
     // logD("paint $safeSize ${originNode.locationOffset}");
     // 1. translate
     canvas.translate(safeSize.width / 2, safeSize.height / 2);
-
-    for (var node in nodes.values) {
-      drawHexagon(node, canvas);
-    }
+    canvas.drawRect(Rect.fromLTRB(0,0, 100, 100), Paint()..color = Colors.black54);
+    // for (var node in nodes.values) {
+    //   drawHexagon(node, canvas);
+    // }
     // canvas.drawCircle(originNode.locationOffset, originNode.radius, Paint()..color = Color(0).randomColor());
     // originNode.sroundNodeOffsets.forEach((singleNode) {
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:warx_flutter/layout/hexagon_layout.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
@@ -72,6 +73,9 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isReady = false;
   @override
   void initState() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft, //全屏时旋转方向，左边
+    ]);
     super.initState();
 
     ResourceManager.i.loadImage();

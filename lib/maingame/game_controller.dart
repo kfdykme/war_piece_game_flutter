@@ -5,6 +5,7 @@ import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
 import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/map/hexagon_map.dart';
+import 'package:warx_flutter/maingame/network/network_base.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/state/ban_pick_state.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
@@ -33,10 +34,15 @@ class GameController {
     _currentPlayer = v;
     if (_currentPlayer != null) {
       _currentPlayer?.enableTurnStartEvent(this);
+      _currentPlayer?.turnCount++;
     }
+    
   }
 
   get currentPlayer => _currentPlayer;
+
+  NetworkBase networkBase = NetworkBase();
+
 
   GameController() {
     _init();
@@ -58,7 +64,28 @@ class GameController {
     throw Error();
   }
 
+  List<BaseGameEvent> eventQueue = []; 
+
+  Future<void> OnEventLoop() async  {
+    while (eventQueue.isNotEmpty) {
+      final event = eventQueue.first;
+      if (eventQueue.length > 1) {
+        eventQueue = eventQueue.sublist(1);
+      } else {
+        eventQueue = [];
+      }
+      await _InnerOnEvent(event); 
+    }
+  }
+
   void OnEvent(BaseGameEvent event) {
+    eventQueue.add(event);
+    OnEventLoop();
+  }
+  
+  Future<void> _InnerOnEvent(BaseGameEvent event) async {
+
+    await networkBase.OnEvent(event);
     final player = GetPlayerById(event.playerId);
     final safePiece = player.GetPieceByIndex(event.pieceId);
 
@@ -152,6 +179,7 @@ class GameController {
 
   win(PlayerInfo playerInfo) {
     isEndGame = true;
+    playerInfo.isWinner = true;
     logD('EventLoop win ${playerA.selectAbleItem}');
     logD('EventLoop win ${playerB.selectAbleItem}');
   }
