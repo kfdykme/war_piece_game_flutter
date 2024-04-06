@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
+import 'package:warx_flutter/maingame/event/event_completer.dart';
 import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/map/hexagon_map.dart';
 import 'package:warx_flutter/maingame/network/network_base.dart';
@@ -48,10 +49,17 @@ class GameController {
 
 
   GameController() {
+    networkBase.gameController = this;
+    networkBase.initWebSocket();
+  }
+
+  void OnAfterPlayerReady() {
+    
     _init();
   }
 
   void _init() {
+    EventCompleter.sCompleterCount = 0;
     map.bindController(this);
 
     currentTurn = nextTurn(currentTurn);
@@ -89,13 +97,16 @@ class GameController {
   Future<void> _InnerOnEvent(BaseGameEvent event) async {
 
     final player = GetPlayerById(event.playerId);
-    await networkBase.OnEvent(event, player);
+    if (player == localPlayer) {
+      await networkBase.OnEvent(event, player);
+    }
     final safePiece = player.GetPieceByIndex(event.pieceId);
 
     logD("EventLoop OnEvent $event ${safePiece?.name}");
     if (event is OnClickPieceEvent) { 
       if (safePiece != null) {
-        player.onClickPiece(safePiece, this).then((value) {
+        player.onClickPiece(safePiece, this)
+        .then((value) {
           logD("EventLoop onClickPiece result $value ======================");
           nextPlayer();
         });
@@ -173,9 +184,9 @@ class GameController {
       }
     }
 
-    if (!event.completer.isCompleted) {
-      logE("EventLoop Not Complete $event $safePiece");
-    }
+    // if (!event.completer.isCompleted) {
+    //   logE("EventLoop Not Complete $event $safePiece");
+    // }
   }
 
   win(PlayerInfo playerInfo) {

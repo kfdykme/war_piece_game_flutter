@@ -21,13 +21,13 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic  {
   static PlayerInfo? playerInfoA;
 
   static PlayerInfo get playerA  {
-    return playerInfoA ??= PlayerInfoNetwork(playerAId);
+    return playerInfoA ??= PlayerInfo(playerAId);
   }
 
   
   static PlayerInfo? playerInfoB;
   static PlayerInfo get playerB  {
-    return playerInfoB ??= PlayerInfoNetwork(palyerBId);
+    return playerInfoB ??= PlayerInfo(palyerBId);
   }
 
   final int id;

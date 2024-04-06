@@ -4,6 +4,7 @@ import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
+import 'package:warx_flutter/util/size.buildcontext.extension.dart';
 
 class GameHeader extends StatefulWidget {
   final GameController controller;
@@ -29,9 +30,10 @@ class GameHeaderState extends State<GameHeader> {
         borderRadius: BorderRadius.circular(8),
         color: info.color,
       ),
-      width: 100,
+      // width: context.mSize().width / 4,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       height: 25,
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      // margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Center(child: Text(info.name, style: TextStyle(color: info.isWaitForAction ? Colors.red :  Colors.white),),),
     );
   }
@@ -48,9 +50,10 @@ class GameHeaderState extends State<GameHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // margin: const EdgeInsets.only(top: 50),
       padding: const EdgeInsets.all(8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             "${currentTurnTitle()} 回合",

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
+import 'package:warx_flutter/maingame/event/event_completer.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
 import 'package:warx_flutter/maingame/player/player_info_logic.ext.dart';
@@ -21,7 +22,7 @@ class PlayerInfoAi extends PlayerInfo {
     this.gameController = gameController;
   }
 
-  BaseGameEvent GetNextRandomeGameEvent() {
+  Future<BaseGameEvent> GetNextRandomeGameEvent() async {
     final skip =
         enableEvent[Random().nextInt(enableEvent.length)];
     if (enableEvent.length > 1 && skip is SkipEvent) {
@@ -71,7 +72,7 @@ class PlayerInfoAi extends PlayerInfo {
       }
       return;
     }
-    final randomAiEvent = GetNextRandomeGameEvent();
+    final randomAiEvent = await GetNextRandomeGameEvent();
     logD("EventLoop enableEvents $this $randomAiEvent in $enableEvent");
     if (randomAiEvent is OnClickPieceEvent) {
       final event = OnClickPieceEvent();
@@ -83,6 +84,7 @@ class PlayerInfoAi extends PlayerInfo {
         logD("EventLoop getNextRandomPieces");
         gameController.onReadyPlayerComplter.future
             .then((value) {
+        logD("EventLoop onReadyPlayerComplter");
           if (selectAbleItem
               .where((element) => element.currentHandCount > 0)
               .toList().isNotEmpty) {
@@ -95,6 +97,7 @@ class PlayerInfoAi extends PlayerInfo {
       event.pieceId =
           pieces[Random().nextInt(pieces.length)].index;
       event.playerId = id;
+      event.completer = EventCompleter.GenerateCompleter();
       gameController.OnEvent(event);
     } else {
       gameController.OnEvent(randomAiEvent);

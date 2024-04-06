@@ -87,8 +87,8 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
         Text("${widget.info.isWinner ? 'WINNER' : ''}"),
         ChestRandomInfo(widget.info),
         ChestItemList(widget.info),
-        // Expanded(child: Container()),
-        // ChestLastItemList(widget.info)
+        Expanded(child: Container()),
+        ChestLastItemList(widget.info)
       ])
     ,);
   } 

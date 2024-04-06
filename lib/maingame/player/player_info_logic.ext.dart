@@ -33,7 +33,9 @@ mixin PlayerInfoLogic {
 
   void enableTurnStartEvent(GameController gameController) {
     enableEvent.clear();
-    enableEvent.add(OnClickPieceEvent());
+    final e =OnClickPieceEvent();
+    e.completer = EventCompleter.GenerateCompleter();
+    enableEvent.add(e);
   }
 
   bool enable(BaseGameEvent event) {
@@ -132,14 +134,21 @@ mixin PlayerInfoLogic {
             clickComsumePieceCompleter.safeComplete(true);
           });
 
-          skipEvent.completer = afterMoveData.completer;
-          nextSkipCallback = buildNextSkipCall(
-              gameController, piece, skipEvent);
 
-          enableEvent.clear();
-          enableEvent.addAll(afterEvents);
+          if (afterMoveData.events.isNotEmpty) {
+            
+            skipEvent.completer = afterMoveData.completer;
+            nextSkipCallback = buildNextSkipCall(
+                gameController, piece, skipEvent);
 
-          OnPlayerTurn();
+            enableEvent.clear();
+            enableEvent.addAll(afterEvents);
+
+            OnPlayerTurn();
+          } else {
+            
+            clickComsumePieceCompleter.safeComplete(true);
+          }
         } else {
           clickComsumePieceCompleter.safeComplete(value);
         }
@@ -314,7 +323,7 @@ mixin PlayerInfoLogic {
         .toList();
     if (allowItems.isNotEmpty) {
       final randomIndex =
-          Random().nextInt(allowItems.length);
+          Random(playerId).nextInt(allowItems.length);
       if (allowItems[randomIndex].currentPackageCount > 0) {
         allowItems[randomIndex].currentPackageCount--;
         allowItems[randomIndex].currentHandCount++; 

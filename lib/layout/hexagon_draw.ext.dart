@@ -98,14 +98,14 @@ mixin HexagonDrawExtension {
     // logD("drawHexagon ${node.locationOffset}");
 
     var currentHexagonColor = hexagonColor;
-    if (node.isClickAble) {
-      currentHexagonColor = Colors.tealAccent;
-    }
-    
     final safePiece = node.piece;
     if (safePiece != null && safePiece.color != null) {
       currentHexagonColor = safePiece.color!;
     }
+    if (node.isClickAble) {
+      currentHexagonColor = Colors.tealAccent;
+    }
+    
     canvas.save();
     canvas.translate(node.locationOffset.dx, node.locationOffset.dy);
     canvas.drawPath(node.boxPath, Paint()..color = currentHexagonColor);
