@@ -28,16 +28,13 @@ class PlayerInfoNetwork extends PlayerInfoAi {
 
 
   @override
-  Future<BaseGameEvent> GetNextRandomeGameEvent() {
+  Future<BaseGameEvent> GetNextRandomeGameEvent() async {
+    
+    final event = await getGameEventCompleter.future;
     getGameEventCompleter = Completer();
-    return getGameEventCompleter.future;
+    return event;
   }
-
-  @override
-  Future<void> OnPlayerTurn() {
-     
-    return super.OnPlayerTurn();
-  }
+ 
 
   @override
   String toString() {

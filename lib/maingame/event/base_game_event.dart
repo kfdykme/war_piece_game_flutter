@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:warx_flutter/maingame/event/event_completer.dart';
 import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
+import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 
@@ -25,6 +26,7 @@ class BaseGameEvent {
   int type = 0;
   Completer<bool> completer = Completer();
 
+  bool isFromPlayerEvent = false;
   @override
   String toString() {
     // TODO: implement toString
@@ -56,8 +58,8 @@ String BaseGameEventToString(BaseGameEvent baseGameEvent) {
   Map<String,dynamic> maps = {};
   maps['playerId'] = baseGameEvent.playerId;
   maps['pieceId'] = baseGameEvent.pieceId;
-  maps['completerId'] = EventCompleter.GetCompleterId(baseGameEvent.completer);
-  assert(maps['completerId'] >= 0);
+  // maps['completerId'] = EventCompleter.GetCompleterId(baseGameEvent.completer);
+  // assert(maps['completerId'] >= 0);
   if (baseGameEvent is ControlEvent) {
     maps['nodeId'] = baseGameEvent.nodeId;
     maps['type'] = GameEventType.control.index;
@@ -94,8 +96,8 @@ BaseGameEvent? StringToBaseGameEvent(String baseGameEventString,GameController g
     final maps = jsonDecode(baseGameEventString);
     final typeInt = maps['type'] as int;
     final type = GameEventType.values[typeInt];
-    final completerId = maps['completerId']  as int;
-    final complter = EventCompleter.GetCompleterById<bool>(completerId);
+    // final completerId = maps['completerId']  as int;
+    // final complter = EventCompleter.GetCompleterById<bool>(completerId);
     BaseGameEvent? event;
     if (type == GameEventType.click) {
       OnClickPieceEvent onClickPieceEvent = OnClickPieceEvent();
@@ -111,11 +113,36 @@ BaseGameEvent? StringToBaseGameEvent(String baseGameEventString,GameController g
       pieceMoveEvent.originNode = gameController.map.nodes.entries.where((element) => element.value.id == originNodeId ).first.value;
       pieceMoveEvent.targetNode = gameController.map.nodes.entries.where((element) => element.value.id == targetNodeId ).first.value;
       event = pieceMoveEvent;
+    } else if (type == GameEventType.control) {
+      ControlEvent controlEvent = ControlEvent();
+      controlEvent.nodeId = maps['nodeId'];
+      event = controlEvent;
+    } else if (type == GameEventType.recuit) {
+      RecruitPieceEvent recruitPieceEvent = RecruitPieceEvent();
+      recruitPieceEvent.targetPieceId = maps['targetPieceId'];
+      event = recruitPieceEvent;
+    } else if (type == GameEventType.attack) {
+      PieceAttackEvent pieceAttackEvent = PieceAttackEvent();
+      pieceAttackEvent.enemyNode = gameController.map.nodes.entries.where((element) => element.value.id == maps['enemyNode'] ).first.value;
+      // pieceAttackEvent.attacker = 
+      final pieces = List.from([gameController.playerA,gameController.playerB]).fold<List<BasicPiece>>(List.empty(growable: true), (previousValue, element) {
+        previousValue.addAll(element.selectAbleItem);
+        return previousValue;
+      });
+      pieceAttackEvent.attacker = pieces.where((element) => element.index == maps['attacker']).first;
+      pieceAttackEvent.attacker = pieces.where((element) => element.index == maps['enemy']).first;  
+
+      event = pieceAttackEvent;
+    } else if (type == GameEventType.skip) {
+      SkipEvent skipEvent = SkipEvent();
+      event = skipEvent;
+    } else {
+      gameController.logE("StringToBaseGameEvent null $type");
     }
 
     event?.playerId = maps['playerId'] as int;
     event?.pieceId = maps['pieceId'] as int;
-    event?.completer = complter;
+    // event?.completer = complter;
     return event;
   } catch (e) {
     baseGameEventString.logE('StringToBaseGameEvent $e');

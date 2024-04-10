@@ -47,6 +47,7 @@ class PlayerInfoAi extends PlayerInfo {
 
   @override
   Future<void> OnPlayerTurn() async {
+    assert(gameController.currentPlayer == this);
     sCount++;
     // if (kDebugMode) {
     //   if (sCount> 1000) {

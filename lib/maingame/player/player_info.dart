@@ -35,6 +35,8 @@ class PlayerInfo with PlayerInfoUIExtension, PlayerInfoLogic  {
   int turnCount = 0;
   bool isWinner = false;
   bool isWaitForAction = false;
+
+  
   PlayerInfo(this.id) {
     if (id == playerAId) {
       color = Colors.redAccent;

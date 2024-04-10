@@ -8,6 +8,8 @@ import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/map/hexagon_map.dart';
 import 'package:warx_flutter/maingame/network/network_base.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
+import 'package:warx_flutter/maingame/player/player_info_event.dart';
+import 'package:warx_flutter/maingame/player/player_info_network.dart';
 import 'package:warx_flutter/maingame/state/ban_pick_state.dart';
 import 'package:warx_flutter/util/completer.safe.extension.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
@@ -15,6 +17,8 @@ import 'package:warx_flutter/util/log.object.extension.dart';
 enum GameTurn { beforestart, banpick, game }
 
 class GameController {
+
+  
   GameTurn currentTurn = GameTurn.beforestart;
   BanPickGameState bp = BanPickGameState();
   Function? onRefresh;
@@ -56,6 +60,9 @@ class GameController {
   void OnAfterPlayerReady() {
     
     _init();
+
+    playerA.gGameController = this;
+    playerB.gGameController = this;
   }
 
   void _init() {
@@ -97,19 +104,24 @@ class GameController {
   Future<void> _InnerOnEvent(BaseGameEvent event) async {
 
     final player = GetPlayerById(event.playerId);
-    if (player == localPlayer) {
+    if (player is! PlayerInfoNetwork) {
       await networkBase.OnEvent(event, player);
+    }
+    if (player is PlayerInfoEvent && !event.isFromPlayerEvent) {
+      event.isFromPlayerEvent = true;
+      player.getGameEventCompleter.safeComplete(event);
+      return;
     }
     final safePiece = player.GetPieceByIndex(event.pieceId);
 
     logD("EventLoop OnEvent $event ${safePiece?.name}");
     if (event is OnClickPieceEvent) { 
       if (safePiece != null) {
-        player.onClickPiece(safePiece, this)
-        .then((value) {
-          logD("EventLoop onClickPiece result $value ======================");
-          nextPlayer();
-        });
+        player.onClickPiece(safePiece, this);
+        // .then((value) {
+        //   logD("EventLoop onClickPiece result $value ======================");
+        //   nextPlayer();
+        // });
       }
       return;
     } else if (event is ArragePieceEvent) {

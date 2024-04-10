@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
 import 'package:warx_flutter/maingame/event/event_completer.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
+import 'package:warx_flutter/maingame/player/player_info_event.dart';
 import 'package:warx_flutter/maingame/player/player_info_network.dart';
 import 'package:warx_flutter/maingame/player/player_info_ui.ext.dart';
 import 'package:warx_flutter/resources/chest_resource_manager.dart';
@@ -59,7 +60,7 @@ class ChestItemListState extends State<ChestItemList> {
 
                   //   }
                   // });
-                  if (widget.info is PlayerInfoNetwork) {
+                  if (widget.info is PlayerInfoEvent) {
                     final event = widget.info.enableEvent.where((element) => element is OnClickPieceEvent).firstOrNull;
                     if (event != null) {
                       event.pieceId = piece.index;
@@ -71,6 +72,7 @@ class ChestItemListState extends State<ChestItemList> {
                     final event = OnClickPieceEvent();
                     event.pieceId = piece.index;
                     event.playerId = widget.info.id; 
+                    event.completer = EventCompleter.GenerateCompleter();
                     context.game.OnEvent(event);
                   }
                 }
