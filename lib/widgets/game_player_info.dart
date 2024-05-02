@@ -77,7 +77,7 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
     }
     final isCurrentActivePlayer = context.game.currentPlayer == widget.info;
     logD("Player ${widget.info.id} is current $isCurrentActivePlayer");
-    return Container(color: widget.info.color, width: width, height: size.height - 100,
+    return Expanded(child: Container(color: widget.info.color, height: size.height - 100,
     child:
       Column(children: [
         // TITLE
@@ -90,6 +90,6 @@ class GamePlayerInfoSingleItemState extends State<GamePlayerInfoSingleItem> {
         Expanded(child: Container()),
         ChestLastItemList(widget.info)
       ])
-    ,);
+    ,));
   } 
 }

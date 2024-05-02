@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MainGamePage> {
 
   bool isReady = false;
   @override
-  void initState() { 
+  void initState() {
     super.initState();
 
     ResourceManager.i.loadImage();
@@ -45,43 +45,50 @@ class _MyHomePageState extends State<MainGamePage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     context.game.setRefresh(() {
       setStateIfMounted();
     });
     if (!isReady) {
-      return Scaffold(
-        body: Center(
+      return Material(
+        child: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          HexagonContainer(
-              width: size.width, height: size.height / 2),
-          GameHeader(
-              controller: context.read<GameController>()),
-          Container(
-              margin: EdgeInsets.only(top: size.height / 2),
-              color: Theme.of(context).hintColor,
-              width: size.width,
-              height: size.height / 2,
-              child: Row(
-                children: [
-                  if (context.game.currentTurn ==
-                      GameTurn.banpick)
-                    GameBanPick(
-                        controller:
-                            context.read<GameController>())
-                  else if (context.game.currentTurn ==
-                      GameTurn.game)
-                    GamePlayerInfoContainer(),
-                ],
-              ))
-        ],
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+    return LayoutBuilder(builder: (context, box) {
+      final size = box.biggest;
+      return Material(
+          child: Container(
+        margin: const EdgeInsets.only(top: 40),
+        child: Stack(
+          children: <Widget>[
+            HexagonContainer(
+                width: size.width, height: size.height / 2),
+            GameHeader(controller: context.game),
+            Container(
+                margin:
+                    EdgeInsets.only(top: size.height / 2),
+                color: Theme.of(context).hintColor,
+                width: size.width,
+                height: size.height / 2,
+                child: Row(
+                  children: [
+                    if (context.game.currentTurn ==
+                        GameTurn.banpick)
+                      GameBanPick(controller: context.game)
+                    else if (context.game.currentTurn ==
+                        GameTurn.game)
+                      SizedBox(
+                        width: size.width,
+                        height: size.height,
+                        child: GamePlayerInfoContainer(),
+                      ),
+                  ],
+                ))
+          ],
+        ),
+      ) // This trailing comma makes auto-formatting nicer for build methods.
+          );
+    });
   }
 }

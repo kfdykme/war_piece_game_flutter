@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:warx_flutter/layout/hexagon_layout.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
+import 'package:warx_flutter/pages/game_controller_base.dart';
 import 'package:warx_flutter/pages/player_select_page.dart';
 import 'package:warx_flutter/resources/resource_manager.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
@@ -14,9 +15,7 @@ import 'package:warx_flutter/widgets/game_player_info.dart';
 import 'widgets/game_ban_pick.dart';
 
 void main() {
-  runApp(MultiProvider(providers: [
-    Provider.value(value:  GameController(),)
-  ], child: const MyApp(),));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -46,7 +45,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.tealAccent),
         useMaterial3: true,
       ),
-      home: PlayerSelectPage(),
+      home: Row(
+        children: [
+          Expanded(child:  GameControllerBase(PlayerSelectPage(), 0)),
+          Expanded(child:  GameControllerBase(PlayerSelectPage(), 1)),
+          
+        ],
+      ),
     );
   }
 }

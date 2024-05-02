@@ -45,6 +45,10 @@ class PlayerInfoAi extends PlayerInfo {
     return skip;
   }
 
+  void ComsupeEvent() {
+
+  }
+
   @override
   Future<void> OnPlayerTurn() async {
     assert(gameController.currentPlayer == this);
@@ -95,12 +99,13 @@ class PlayerInfoAi extends PlayerInfo {
         });
         return;
       }
+      ComsupeEvent();
       event.pieceId =
           pieces[Random().nextInt(pieces.length)].index;
-      event.playerId = id;
-      event.completer = EventCompleter.GenerateCompleter();
+      event.playerId = id; 
       gameController.OnEvent(event);
     } else {
+      ComsupeEvent();
       gameController.OnEvent(randomAiEvent);
       cancelOtherAllClickableEvent(gameController);
       notifyUI();

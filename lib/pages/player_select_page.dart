@@ -26,10 +26,14 @@ class PlayerSelectPageState
   void checkNeedToStart() {
     if (!enableA && !enableB) {
       context.game.OnAfterPlayerReady();
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) {
-        return const MainGamePage(title: "");
-      }));
+      if (context.game.nextScene != null) {
+        context.game.nextScene?.call( const MainGamePage(title: ""));
+      } else {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) {
+          return const MainGamePage(title: "");
+        }));
+      }
     }
   }
 
@@ -42,7 +46,7 @@ class PlayerSelectPageState
         enableA = false;
         setStateIfMounted();
       }
-      if (playerId == palyerBId) {
+      if (playerId == playerBId) {
         enableB = false;
         setStateIfMounted();
       }
@@ -104,7 +108,29 @@ class PlayerSelectPageState
     return Material(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+      children: [  
+        TextButton(
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.resolveWith(
+                          (states) {
+                    //设置按下时的背景颜色
+                    if (states
+                        .contains(MaterialState.pressed)) {
+                      return const Color.fromARGB(
+                          255, 150, 236, 215);
+                    }
+                    if (mode == PlayMode.AI) {
+                      return const Color.fromARGB(
+                          255, 150, 236, 215);
+                    }
+                    //默认不使用背景颜色
+                    return null;
+                  }),
+                ),
+                onPressed: () { 
+                },
+                child: Text("Game: ${context.game.hashCode.toString()}-${widget.hashCode}-${hashCode}")),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -174,18 +200,18 @@ class PlayerSelectPageState
 
   void onSelectPlayer(String p) {
     if (p == 'A') {
-      PlayerInfo.playerInfoB = mode == PlayMode.Network
-          ? PlayerInfoNetwork(palyerBId)
-          : PlayerInfoAi(palyerBId);
+      context.game.playerB = mode == PlayMode.Network
+          ? PlayerInfoNetwork(playerBId)
+          : PlayerInfoAi(playerBId);
 
-      context.game.localPlayer = PlayerInfo.playerA;
+      context.game.localPlayer = context.game.playerA;
       enableA = false;
     } else if (p == 'B') {
-      PlayerInfo.playerInfoA = mode == PlayMode.Network
+      context.game.playerA = mode == PlayMode.Network
           ? PlayerInfoNetwork(playerAId)
           : PlayerInfoAi(playerAId);
 
-      context.game.localPlayer = PlayerInfo.playerB;
+      context.game.localPlayer = context.game.playerB; 
       enableB = false;
     }
     // context.game.playerA.color = Theme.of(context).primaryColorDark;

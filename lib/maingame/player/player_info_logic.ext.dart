@@ -26,7 +26,12 @@ mixin PlayerInfoLogic {
   }
 
   void OnPlayerTurn() {
+    logD("OnPlayerTurn $this");
     getNextRandomPieces();
+  }
+
+  void OnEndPlayerTurn() {
+    
   }
 
   late GameController gGameController;
@@ -35,8 +40,7 @@ mixin PlayerInfoLogic {
 
   void enableTurnStartEvent(GameController gameController) {
     enableEvent.clear();
-    final e = OnClickPieceEvent();
-    e.completer = EventCompleter.GenerateCompleter();
+    final e = OnClickPieceEvent(); 
     enableEvent.add(e);
   }
 
@@ -57,8 +61,7 @@ mixin PlayerInfoLogic {
       logD("onClickGlodenPiece $piece");
       return false;
     }
-    Completer<bool> clickComsumePieceCompleter =
-        EventCompleter.GenerateCompleter<bool>();
+    Completer<bool> clickComsumePieceCompleter = Completer();
     final enablePlaceNodes =
         piece.GetNodesEnablePlaceNewPiece(gameController);
     logD(

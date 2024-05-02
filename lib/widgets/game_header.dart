@@ -21,7 +21,7 @@ class GameHeaderState extends State<GameHeader> {
     if (context.game.currentTurn == GameTurn.banpick) {
       return "Ban/Pick";
     }
-    return "TODO";
+    return "${context.game.currentTurnPlayer}";
   }
 
   Widget _buildSinglePlayer(PlayerInfo info) {
@@ -50,7 +50,6 @@ class GameHeaderState extends State<GameHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // margin: const EdgeInsets.only(top: 50),
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,

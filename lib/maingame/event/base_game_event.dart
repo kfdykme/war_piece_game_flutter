@@ -18,7 +18,8 @@ enum GameEventType {
   skip,
   control,
   move,
-  attack
+  attack,
+  onPlayerStart
 }
 class BaseGameEvent {
   int playerId = 0;
@@ -54,6 +55,10 @@ class ControlEvent extends BaseGameEvent {
   int nodeId = 0;
 }
 
+class OnPlayerTurnStartEvent extends BaseGameEvent {
+  
+}
+
 String BaseGameEventToString(BaseGameEvent baseGameEvent) {
   Map<String,dynamic> maps = {};
   maps['playerId'] = baseGameEvent.playerId;
@@ -82,6 +87,8 @@ String BaseGameEventToString(BaseGameEvent baseGameEvent) {
     maps['attacker'] = baseGameEvent.attacker.index;
     maps['enemy'] = baseGameEvent.enemy.index;
     maps['enemyNode'] = baseGameEvent.enemyNode.id;
+  } else if (baseGameEvent is OnPlayerTurnStartEvent) {
+    maps['type'] = GameEventType.onPlayerStart.index;
   }
 
 
@@ -133,6 +140,9 @@ BaseGameEvent? StringToBaseGameEvent(String baseGameEventString,GameController g
       pieceAttackEvent.attacker = pieces.where((element) => element.index == maps['enemy']).first;  
 
       event = pieceAttackEvent;
+    } else if (type == GameEventType.onPlayerStart) {
+      OnPlayerTurnStartEvent onPlayerTurnStartEvent = OnPlayerTurnStartEvent();
+      event = onPlayerTurnStartEvent;
     } else if (type == GameEventType.skip) {
       SkipEvent skipEvent = SkipEvent();
       event = skipEvent;

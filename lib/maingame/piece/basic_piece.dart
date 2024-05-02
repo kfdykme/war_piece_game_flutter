@@ -197,7 +197,7 @@ class BasicPiece {
   PieceEventBuildData Move(GameController game) {
     logD("try Move ");
     PieceEventBuildData data = PieceEventBuildData();
-    Completer<bool> moveCompleter = EventCompleter.GenerateCompleter();
+    Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
     final layoutNode = GetCurrentLayoutNode(game);
 

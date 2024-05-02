@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:warx_flutter/maingame/event/ban_pick_event.dart';
 import 'package:warx_flutter/maingame/event/base_game_event.dart';
 import 'package:warx_flutter/maingame/event/event_completer.dart';
@@ -16,15 +18,18 @@ import 'package:warx_flutter/util/log.object.extension.dart';
 
 enum GameTurn { beforestart, banpick, game }
 
+typedef NextSceneCallback = void Function(Widget widget);
+
 class GameController {
 
-  
+  static Map<int, GameController> gameMaps = {};
+
   GameTurn currentTurn = GameTurn.beforestart;
   BanPickGameState bp = BanPickGameState();
   Function? onRefresh;
   Completer onReadyPlayerComplter = Completer();
 
-  static bool dev_is_skip_bp = true;
+  bool dev_is_skip_bp = true;
 
   HexagonMap map = HexagonMap();
 
@@ -35,6 +40,28 @@ class GameController {
   // 本地玩家
   PlayerInfo? localPlayer;
 
+  PlayerInfo? currentTurnPlayer;
+
+  PlayerInfo? _playerA;
+
+  PlayerInfo? _playerB;
+
+  PlayerInfo get playerA {
+    return _playerA ??= PlayerInfo(playerAId);
+  }
+
+  PlayerInfo get playerB {
+    return _playerB ??= PlayerInfo(playerBId);
+  }
+
+  set playerA(v) {
+    _playerA = v;
+  }
+
+  set playerB(v) {
+    _playerB = v;
+  }
+
   set currentPlayer(v) {
     if (_currentPlayer != null) {
       _currentPlayer?.enableEvent.clear();
@@ -44,13 +71,15 @@ class GameController {
       _currentPlayer?.enableTurnStartEvent(this);
       _currentPlayer?.turnCount++;
     }
-    
   }
 
-  get currentPlayer => _currentPlayer;
+  List<dynamic> gameEventStack = [];
+
+  PlayerInfo? get currentPlayer => _currentPlayer;
 
   NetworkBase networkBase = NetworkBase();
 
+  NextSceneCallback? nextScene;
 
   GameController() {
     networkBase.gameController = this;
@@ -58,7 +87,6 @@ class GameController {
   }
 
   void OnAfterPlayerReady() {
-    
     _init();
 
     playerA.gGameController = this;
@@ -66,7 +94,6 @@ class GameController {
   }
 
   void _init() {
-    EventCompleter.sCompleterCount = 0;
     map.bindController(this);
 
     currentTurn = nextTurn(currentTurn);
@@ -82,9 +109,9 @@ class GameController {
     throw Error();
   }
 
-  List<BaseGameEvent> eventQueue = []; 
+  List<BaseGameEvent> eventQueue = [];
 
-  Future<void> OnEventLoop() async  {
+  Future<void> OnEventLoop() async {
     while (eventQueue.isNotEmpty) {
       final event = eventQueue.first;
       if (eventQueue.length > 1) {
@@ -92,7 +119,7 @@ class GameController {
       } else {
         eventQueue = [];
       }
-      await _InnerOnEvent(event); 
+      await _InnerOnEvent(event);
     }
   }
 
@@ -100,14 +127,23 @@ class GameController {
     eventQueue.add(event);
     OnEventLoop();
   }
-  
-  Future<void> _InnerOnEvent(BaseGameEvent event) async {
 
+  Future<void> _InnerOnEvent(BaseGameEvent event) async {
     final player = GetPlayerById(event.playerId);
     if (player is! PlayerInfoNetwork) {
       await networkBase.OnEvent(event, player);
     }
-    if (player is PlayerInfoEvent && !event.isFromPlayerEvent) {
+
+    if (event is OnPlayerTurnStartEvent) {
+      currentTurnPlayer = player;
+      player.OnPlayerTurn();
+      player.notifyRefresh();
+      gameEventStack.add(event);
+      return;
+    }
+
+    if (player is PlayerInfoEvent &&
+        !event.isFromPlayerEvent) {
       event.isFromPlayerEvent = true;
       player.getGameEventCompleter.safeComplete(event);
       return;
@@ -115,7 +151,7 @@ class GameController {
     final safePiece = player.GetPieceByIndex(event.pieceId);
 
     logD("EventLoop OnEvent $event ${safePiece?.name}");
-    if (event is OnClickPieceEvent) { 
+    if (event is OnClickPieceEvent) {
       if (safePiece != null) {
         player.onClickPiece(safePiece, this);
         // .then((value) {
@@ -139,9 +175,10 @@ class GameController {
             event.completer.safeComplete(false);
           } else {
             logD("add to here");
-            safePiece.hp += 1; 
+            safePiece.hp += 1;
             node.piece = safePiece;
-            player.comsumePiece(safePiece, disableCount: false);
+            player.comsumePiece(safePiece,
+                disableCount: false);
 
             event.completer.safeComplete(true);
           }
@@ -150,7 +187,8 @@ class GameController {
     } else if (event is RecruitPieceEvent) {
       final safePiece =
           player.GetPieceByIndex(event.pieceId);
-      final targetPiece = player.GetPieceByIndex(event.targetPieceId);
+      final targetPiece =
+          player.GetPieceByIndex(event.targetPieceId);
       if (safePiece != null && targetPiece != null) {
         targetPiece.currentPackageCount++;
         targetPiece.enableEmpolyCount--;
@@ -186,8 +224,12 @@ class GameController {
           ?.value;
       if (node != null && safePiece != null) {
         player.importantNodes.add(node);
-        final otherPlayer = playerA.id == player.id ? playerB : playerA;
-        otherPlayer.importantNodes = otherPlayer.importantNodes.where((element) => element.id != node.id).toList();
+        final otherPlayer =
+            playerA.id == player.id ? playerB : playerA;
+        otherPlayer.importantNodes = otherPlayer
+            .importantNodes
+            .where((element) => element.id != node.id)
+            .toList();
         onRefresh?.call();
         event.completer.safeComplete(true);
         if (player.importantNodes.length >= 6) {
@@ -195,6 +237,8 @@ class GameController {
         }
       }
     }
+
+    onRefresh?.call();
 
     // if (!event.completer.isCompleted) {
     //   logE("EventLoop Not Complete $event $safePiece");
@@ -247,7 +291,9 @@ class GameController {
     }
     playerA.notifyRefresh();
     playerB.notifyRefresh();
-    currentPlayer.OnPlayerTurn();
+    final event = OnPlayerTurnStartEvent();
+    event.playerId = currentPlayer!.id;
+    OnEvent(event);
   }
 
   void onBanPickEvent(BanPickEvent event) {
@@ -260,12 +306,12 @@ class GameController {
     if (ct == GameTurn.beforestart) {
       return GameTurn.banpick;
     }
-    assert(false);
+    // assert(false);
     return ct;
   }
 
-  PlayerInfo get playerA => PlayerInfo.playerA;
-  PlayerInfo get playerB => PlayerInfo.playerB;
+  // PlayerInfo get playerA => PlayerInfo.playerA;
+  // PlayerInfo get playerB => PlayerInfo.playerB;
 
   void setRefresh(Function? callback) {
     onRefresh = callback;

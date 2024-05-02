@@ -134,10 +134,10 @@ class SingleHexagonPainter extends CustomPainter with HexagonDrawExtension  {
     initSvg();
     Color imageColor = color2;
     if (node.isPlayerABasicImportant || gameController.playerA.importantNodes.contains(node)) {
-      imageColor = PlayerInfo.playerA.color;
+      imageColor = gameController.playerA.color;
     }
     if (node.isPlayerBBasicImportant|| gameController.playerB.importantNodes.contains(node)) {
-      imageColor = PlayerInfo.playerB.color;
+      imageColor = gameController.playerB.color;
     }
     initColor(hexagon: color, image:imageColor,  important: Colors.teal);
   }

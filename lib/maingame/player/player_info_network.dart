@@ -31,10 +31,17 @@ class PlayerInfoNetwork extends PlayerInfoAi {
   Future<BaseGameEvent> GetNextRandomeGameEvent() async {
     
     final event = await getGameEventCompleter.future;
-    getGameEventCompleter = Completer();
+    logD("EventLoop getGameEventCompleter $event");
     return event;
   }
  
+
+  @override
+  void ComsupeEvent() {
+    // TODO: implement ComsupeEvent
+    super.ComsupeEvent();
+    getGameEventCompleter = Completer();
+  }
 
   @override
   String toString() {

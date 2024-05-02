@@ -71,8 +71,7 @@ class ChestItemListState extends State<ChestItemList> {
 
                     final event = OnClickPieceEvent();
                     event.pieceId = piece.index;
-                    event.playerId = widget.info.id; 
-                    event.completer = EventCompleter.GenerateCompleter();
+                    event.playerId = widget.info.id;  
                     context.game.OnEvent(event);
                   }
                 }

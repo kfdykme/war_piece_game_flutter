@@ -34,11 +34,11 @@ class BanPickGameState with NextTurnMixin {
 
   void _init() {
     innerStates.add(BanPickInnerState(isBan: true, playerId: playerAId));
-    innerStates.add(BanPickInnerState(isBan: true, playerId: palyerBId));
+    innerStates.add(BanPickInnerState(isBan: true, playerId: playerBId));
     innerStates.add(BanPickInnerState(playerId: playerAId)); 
-    innerStates.add(BanPickInnerState(playerId: palyerBId, count: 2)); 
+    innerStates.add(BanPickInnerState(playerId: playerBId, count: 2)); 
     innerStates.add(BanPickInnerState(playerId: playerAId, count: 2)); 
-    innerStates.add(BanPickInnerState(playerId: palyerBId, count: 2)); 
+    innerStates.add(BanPickInnerState(playerId: playerBId, count: 2)); 
     innerStates.add(BanPickInnerState(playerId: playerAId));  
   }
 
@@ -49,7 +49,7 @@ class BanPickGameState with NextTurnMixin {
   void onEvent(BanPickEvent event) {
     logD("EventLoop ${event.index}");
     final safeState = innerStates[stateIndex];
-    if (safeState.isBan) {
+    if (safeState.isBan) {  
       logD("EventLoop banedItemLists");
       banedItemLists.add(event.index);
       stateIndex ++;
@@ -57,10 +57,10 @@ class BanPickGameState with NextTurnMixin {
     if (!safeState.isBan) {
       logD("EventLoop select");
       // select
-      if (safeState.playerId == PlayerInfo.playerA.id) {
+      if (safeState.playerId == playerAId) {
         playerASelected.add(event.index);
       } 
-      if (safeState.playerId == PlayerInfo.playerB.id) {
+      if (safeState.playerId == playerBId) {
         playerBSelected.add(event.index);
       } 
 
