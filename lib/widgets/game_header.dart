@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/player/player_info.dart';
+import 'package:warx_flutter/maingame/player/player_info_network.dart';
 import 'package:warx_flutter/util/color.random.extension.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
 import 'package:warx_flutter/util/size.buildcontext.extension.dart';
@@ -21,7 +22,7 @@ class GameHeaderState extends State<GameHeader> {
     if (context.game.currentTurn == GameTurn.banpick) {
       return "Ban/Pick";
     }
-    return "${context.game.currentTurnPlayer}";
+    return "${context.game.currentTurnPlayer is! PlayerInfoNetwork ? '你' : "等待${context.game.currentPlayer}"} 的";
   }
 
   Widget _buildSinglePlayer(PlayerInfo info) {

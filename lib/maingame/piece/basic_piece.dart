@@ -35,6 +35,7 @@ class BasicPiece {
   final int maxAllowCount;
   // 已招募，不在手上的数量
   int currentPackageCount;
+
   // 当前
   int currentHandCount = 0;
 
@@ -194,8 +195,8 @@ class BasicPiece {
     return MoveConfig(1);
   }
 
-  PieceEventBuildData Move(GameController game) {
-    logD("try Move ");
+  PieceEventBuildData BuildMoveAction(GameController game) {
+    logD("try BuildMoveAction ");
     PieceEventBuildData data = PieceEventBuildData();
     Completer<bool> moveCompleter = Completer();
     // NOTE: 1 获取当前位置
@@ -221,12 +222,13 @@ class BasicPiece {
         data.events.add(event);
         e.nextClickCallback = () {
           logD("Do Move");
+          
           game.OnEvent(event);
         };
       });
       game.onRefresh?.call();
     } else {
-      logE("without piece ${this.name} in map");
+      logE("try BuildMoveAction fail: without piece ${this.name} in map");
     }
 
     moveCompleter.future.then(

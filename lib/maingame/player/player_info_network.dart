@@ -25,7 +25,7 @@ class PlayerInfoNetwork extends PlayerInfoAi {
     this.gameController = gameController;
     
   }
-
+      
 
   @override
   Future<BaseGameEvent> GetNextRandomeGameEvent() async {
@@ -46,6 +46,6 @@ class PlayerInfoNetwork extends PlayerInfoAi {
   @override
   String toString() {
     // TODO: implement toString
-    return 'PlayerEnableNetwork $playerId';
+    return '远端玩家 $playerId ';
   }
 }

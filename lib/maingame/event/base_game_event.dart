@@ -7,6 +7,7 @@ import 'package:warx_flutter/maingame/event/event_completer.dart';
 import 'package:warx_flutter/maingame/event/piece_event.dart';
 import 'package:warx_flutter/maingame/game_controller.dart';
 import 'package:warx_flutter/maingame/piece/basic_piece.dart';
+import 'package:warx_flutter/maingame/player/player_info_logic.ext.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
 
@@ -120,6 +121,13 @@ BaseGameEvent? StringToBaseGameEvent(String baseGameEventString,GameController g
       pieceMoveEvent.originNode = gameController.map.nodes.entries.where((element) => element.value.id == originNodeId ).first.value;
       pieceMoveEvent.targetNode = gameController.map.nodes.entries.where((element) => element.value.id == targetNodeId ).first.value;
       event = pieceMoveEvent;
+      event.completer.future.then((value) {
+        
+          final player = gameController.GetPlayerById(event!.playerId);
+          
+    final safePiece = player.GetPieceByIndex(event.pieceId);
+        PlayerInfoLogic.buildOnMoveEvent(player, value, safePiece!, gameController)();
+      });
     } else if (type == GameEventType.control) {
       ControlEvent controlEvent = ControlEvent();
       controlEvent.nodeId = maps['nodeId'];

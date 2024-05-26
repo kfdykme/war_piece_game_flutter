@@ -46,9 +46,11 @@ class ReactableHexagonLayout extends State<HexagonContainer>{
   Widget build(BuildContext context) { 
     return GestureDetector( 
       onTapUp:(details) async {  
-        final hitNode = nodes.values.where((node) => node.boxPath.contains(details.globalPosition - centerOffset - node.locationOffset)).firstOrNull;
+        final renderBox = context.findRenderObject() as RenderBox;
+        final hitPositionOnMap = renderBox.globalToLocal(details.globalPosition);
+        final hitNode = nodes.values.where((node) => node.boxPath.contains(hitPositionOnMap - centerOffset - node.locationOffset)).firstOrNull;
         if (hitNode != null) {
-          logD("$hitNode");
+          logD("$hitNode $centerOffset ${hitNode.locationOffset} ${hitPositionOnMap - centerOffset - hitNode.locationOffset}");
           // hitNode.isClickAble = !hitNode.isClickAble;
           hitNode.onClick().then((comsumePiece) {
             if (comsumePiece) {
@@ -58,9 +60,10 @@ class ReactableHexagonLayout extends State<HexagonContainer>{
 
           setStateIfMounted();
         } else {
-          // hitOffsets.add(details.globalPosition);
+          // hitOffsets.add(hitPositionOnMap);
           // setStateIfMounted();
           // logD("hitOffsets $hitOffsets");
+          logE("hitNode is null $centerOffset");
         }
       },
       child: Container(

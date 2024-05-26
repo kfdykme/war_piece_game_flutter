@@ -4,6 +4,7 @@ import 'package:warx_flutter/maingame/player/player_info_logic.ai.mixin.dart';
 import 'package:warx_flutter/maingame/player/player_info_network.dart';
 import 'package:warx_flutter/pages/main_game_page.dart';
 import 'package:warx_flutter/util/game.buildcontext.extension.dart';
+import 'package:warx_flutter/util/log.object.extension.dart';
 import 'package:warx_flutter/util/state.extension.dart';
 
 class PlayerSelectPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class PlayerSelectPageState
   PlayMode mode = PlayMode.UnSelected;
 
   void checkNeedToStart() {
-    if (!enableA && !enableB) {
+    if ((!enableA && !enableB) || (mode == PlayMode.AI && (!enableA || !enableB))) {
       context.game.OnAfterPlayerReady();
       if (context.game.nextScene != null) {
         context.game.nextScene?.call( const MainGamePage(title: ""));
@@ -42,14 +43,20 @@ class PlayerSelectPageState
     super.initState();
     context.game.networkBase
         .bindOnPlayerJoin((int playerId) {
-      if (playerId == playerAId) {
-        enableA = false;
-        setStateIfMounted();
-      }
-      if (playerId == playerBId) {
-        enableB = false;
-        setStateIfMounted();
-      }
+
+          try {
+
+            if (playerId == playerAId) {
+              enableA = false;
+              setStateIfMounted();
+            }
+            if (playerId == playerBId) {
+              enableB = false;
+              setStateIfMounted();
+            }
+          } catch(err) {
+            logD("init state error");
+          }
       checkNeedToStart();
     });
     context.game.networkBase.JoinGame();
@@ -196,8 +203,7 @@ class PlayerSelectPageState
             Theme.of(context).primaryColorLight)
       ],
     ));
-  }
-
+  } 
   void onSelectPlayer(String p) {
     if (p == 'A') {
       context.game.playerB = mode == PlayMode.Network

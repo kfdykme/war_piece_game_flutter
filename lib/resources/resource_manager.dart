@@ -44,6 +44,7 @@ class ResourceManager {
 
   late PictureInfo pictureInfo;
   Future<void> loadImage() async {
+    logD("loadImage");
     // rootBundle.loadBuffer(key)
     Uint8List imageBytes = Uint8List.fromList([]);
     if (Platform.isWindows) {

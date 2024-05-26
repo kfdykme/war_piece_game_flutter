@@ -49,7 +49,7 @@ class NetworkBase {
     channel.ready.then((value) {
       logD("initWebSocket success");
       channel.stream.listen((event) {
-        logD("receive message $event");
+        logD("receive message ${currentPlayer}  $event");
         if (event is String) {
           if (event.startsWith('\{')) {
             final gameEvent = StringToBaseGameEvent(

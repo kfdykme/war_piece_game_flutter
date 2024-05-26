@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'dart:typed_data';
 
 import 'package:warx_flutter/resources/resource_manager.dart';
+import 'package:warx_flutter/util/log.object.extension.dart';
 
 class ChestResourceManager {
 
@@ -12,12 +13,13 @@ class ChestResourceManager {
   Map<int,ui.Image> imageCaches = {};
   Map<int,Uint8List> imageBufferCache = {};
   ChestResourceManager() {
-
+    logD('ChestResourceManager contructor');
   }
 
   int _row = 8;
 
   ui.Image? getUiImageByIndex(int index, Function? onLoadFinish) {
+    // logD("getUiImageByIndex $index");
     if (imageCaches.containsKey(index)) {
       return imageCaches[index];
     }

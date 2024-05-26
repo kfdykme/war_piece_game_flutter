@@ -81,9 +81,17 @@ class GameController {
 
   NextSceneCallback? nextScene;
 
-  GameController() {
+  int gameId;
+
+  GameController(this.gameId) {
     networkBase.gameController = this;
     networkBase.initWebSocket();
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'GameController $gameId';
   }
 
   void OnAfterPlayerReady() {
@@ -130,15 +138,23 @@ class GameController {
 
   Future<void> _InnerOnEvent(BaseGameEvent event) async {
     final player = GetPlayerById(event.playerId);
+    
     if (player is! PlayerInfoNetwork) {
+      if (event is OnPlayerTurnStartEvent) {
+        logD("why");
+      }
       await networkBase.OnEvent(event, player);
     }
 
+    logD("EventLoop OnEvent $event ");
     if (event is OnPlayerTurnStartEvent) {
+      logD("EventLoop OnEvent OnPlayerTurnStartEvent shouldSend ${player is! PlayerInfoNetwork}, ${player}");
+      logD("EventLoop OnEvent OnPlayerTurnStartEvent ${player.id}");
       currentTurnPlayer = player;
       player.OnPlayerTurn();
       player.notifyRefresh();
       gameEventStack.add(event);
+      
       return;
     }
 
@@ -149,8 +165,7 @@ class GameController {
       return;
     }
     final safePiece = player.GetPieceByIndex(event.pieceId);
-
-    logD("EventLoop OnEvent $event ${safePiece?.name}");
+    logD("EventLoop OnEvent piece ${safePiece?.name}");
     if (event is OnClickPieceEvent) {
       if (safePiece != null) {
         player.onClickPiece(safePiece, this);

@@ -23,13 +23,14 @@ class GameControllerBaseState extends State<GameControllerBase> {
 
   Widget? child ;
   
-  GameController gameController = GameController();
+  GameController gameController = GameController(-1);
 
   
   @override
   void initState() { 
     super.initState();
     child = widget.child;
+    gameController.gameId = widget.gameId;
     gameController.nextScene = (newWidget) {
       child = newWidget;
       setStateIfMounted();

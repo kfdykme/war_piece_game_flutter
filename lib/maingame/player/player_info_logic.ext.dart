@@ -38,6 +38,56 @@ mixin PlayerInfoLogic {
 
   List<BaseGameEvent> enableEvent = [];
 
+
+  static Function buildOnMoveEvent(PlayerInfoLogic player, bool value, BasicPiece piece, GameController gameController) {
+    final clickComsumePieceCompleter = Completer<bool>();
+    final skipEvent = SkipEvent();
+    skipEvent.playerId = player.playerId;
+    skipEvent.completer = clickComsumePieceCompleter;
+    skipEvent.pieceId = piece.index;
+    return () {
+      player.logD("movedata future $value");
+      if (value) {
+        player.comsumePiece(piece);
+        player.cancelOtherAllClickableEvent(gameController);
+        player.notifyUI();
+      }
+      if (piece.CanAfterMove(gameController)) {
+        final List<BaseGameEvent> afterEvents = [];
+        skipEvent.pieceId = -1;
+        afterEvents.add(skipEvent);
+        final afterMoveData =
+        piece.AfterMove(gameController);
+        afterEvents.addAll(afterMoveData.events);
+        afterMoveData.completer.future.then((value) {
+          player.logD("EventLoop AfterMove ");
+         player. cancelOtherAllClickableEvent(gameController);
+        player.  notifyUI();
+          clickComsumePieceCompleter.safeComplete(true);
+        });
+
+        if (afterMoveData.events.isNotEmpty) {
+          skipEvent.completer = afterMoveData.completer;
+       player.   nextSkipCallback =player. buildNextSkipCall(
+              gameController, piece, skipEvent);
+
+       player.   enableEvent.clear();
+      player.    enableEvent.addAll(afterEvents);
+
+    player.      OnPlayerTurn();
+        } else {
+          clickComsumePieceCompleter.safeComplete(true);
+
+    player.      comsumePiece(piece);
+   player.       cancelOtherAllClickableEvent(gameController);
+  player.        notifyUI();
+        }
+      } else {
+        clickComsumePieceCompleter.safeComplete(value);
+      }
+    };
+  }
+
   void enableTurnStartEvent(GameController gameController) {
     enableEvent.clear();
     final e = OnClickPieceEvent(); 
@@ -65,7 +115,7 @@ mixin PlayerInfoLogic {
     final enablePlaceNodes =
         piece.GetNodesEnablePlaceNewPiece(gameController);
     logD(
-        "EventLoop enablePlaceNodes ${enablePlaceNodes.length}");
+        "enablePlaceNodes ${enablePlaceNodes.length}");
 
     List<BaseGameEvent> clickPieceNextEvents = [];
     enablePlaceNodes.forEach((element) {
@@ -113,47 +163,10 @@ mixin PlayerInfoLogic {
     nextSkipCallback =
         buildNextSkipCall(gameController, piece, skipEvent);
 
-    final movedata = piece.Move(gameController);
+    final movedata = piece.BuildMoveAction(gameController);
     clickPieceNextEvents.addAll(movedata.events);
     movedata.completer.future.then((value) {
-      if (value) {
-        comsumePiece(piece);
-        cancelOtherAllClickableEvent(gameController);
-        notifyUI();
-      }
-      if (piece.CanAfterMove(gameController)) {
-        final List<BaseGameEvent> afterEvents = [];
-        skipEvent.pieceId = -1;
-        afterEvents.add(skipEvent);
-        final afterMoveData =
-            piece.AfterMove(gameController);
-        afterEvents.addAll(afterMoveData.events);
-        afterMoveData.completer.future.then((value) {
-          logD("EventLoop AfterMove ");
-          cancelOtherAllClickableEvent(gameController);
-          notifyUI();
-          clickComsumePieceCompleter.safeComplete(true);
-        });
-
-        if (afterMoveData.events.isNotEmpty) {
-          skipEvent.completer = afterMoveData.completer;
-          nextSkipCallback = buildNextSkipCall(
-              gameController, piece, skipEvent);
-
-          enableEvent.clear();
-          enableEvent.addAll(afterEvents);
-
-          OnPlayerTurn();
-        } else {
-          clickComsumePieceCompleter.safeComplete(true);
-          
-          comsumePiece(piece);
-          cancelOtherAllClickableEvent(gameController);
-          notifyUI();
-        }
-      } else {
-        clickComsumePieceCompleter.safeComplete(value);
-      }
+        buildOnMoveEvent(this, value, piece, gameController)();
     });
 
     final attackdata = piece.Attack(gameController);
@@ -366,6 +379,7 @@ mixin PlayerInfoLogic {
       }
       result.add(next);
     }
+    logD("getNextRandomPieces $result");
     return result;
   }
 }

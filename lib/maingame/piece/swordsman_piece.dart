@@ -10,7 +10,7 @@ class SwordsmanPiece extends BasicPiece {
 
   @override
   PieceEventBuildData OnAfterAttack(GameController gameController) { 
-    return Move(gameController);
+    return BuildMoveAction(gameController);
   }
 
   @override
