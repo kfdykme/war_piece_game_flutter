@@ -30,16 +30,17 @@ mixin PlayerInfoLogic {
     getNextRandomPieces();
   }
 
-  void OnEndPlayerTurn() {
-    
-  }
+  void OnEndPlayerTurn() {}
 
   late GameController gGameController;
 
   List<BaseGameEvent> enableEvent = [];
 
-
-  static Function buildOnMoveEvent(PlayerInfoLogic player, bool value, BasicPiece piece, GameController gameController) {
+  static Function buildOnMoveEvent(
+      PlayerInfoLogic player,
+      bool value,
+      BasicPiece piece,
+      GameController gameController) {
     final clickComsumePieceCompleter = Completer<bool>();
     final skipEvent = SkipEvent();
     skipEvent.playerId = player.playerId;
@@ -57,30 +58,33 @@ mixin PlayerInfoLogic {
         skipEvent.pieceId = -1;
         afterEvents.add(skipEvent);
         final afterMoveData =
-        piece.AfterMove(gameController);
+            piece.AfterMove(gameController);
         afterEvents.addAll(afterMoveData.events);
         afterMoveData.completer.future.then((value) {
           player.logD("EventLoop AfterMove ");
-         player. cancelOtherAllClickableEvent(gameController);
-        player.  notifyUI();
+          player
+              .cancelOtherAllClickableEvent(gameController);
+          player.notifyUI();
           clickComsumePieceCompleter.safeComplete(true);
         });
 
         if (afterMoveData.events.isNotEmpty) {
           skipEvent.completer = afterMoveData.completer;
-       player.   nextSkipCallback =player. buildNextSkipCall(
-              gameController, piece, skipEvent);
+          player.nextSkipCallback =
+              player.buildNextSkipCall(
+                  gameController, piece, skipEvent);
 
-       player.   enableEvent.clear();
-      player.    enableEvent.addAll(afterEvents);
+          player.enableEvent.clear();
+          player.enableEvent.addAll(afterEvents);
 
-    player.      OnPlayerTurn();
+          player.OnPlayerTurn();
         } else {
           clickComsumePieceCompleter.safeComplete(true);
 
-    player.      comsumePiece(piece);
-   player.       cancelOtherAllClickableEvent(gameController);
-  player.        notifyUI();
+          player.comsumePiece(piece);
+          player
+              .cancelOtherAllClickableEvent(gameController);
+          player.notifyUI();
         }
       } else {
         clickComsumePieceCompleter.safeComplete(value);
@@ -88,9 +92,17 @@ mixin PlayerInfoLogic {
     };
   }
 
+  static Function buildOnAttackEvent(
+      PlayerInfoLogic player,
+      bool value,
+      BasicPiece piece,
+      GameController gameController) {
+        
+  }
+
   void enableTurnStartEvent(GameController gameController) {
     enableEvent.clear();
-    final e = OnClickPieceEvent(); 
+    final e = OnClickPieceEvent();
     enableEvent.add(e);
   }
 
@@ -98,7 +110,7 @@ mixin PlayerInfoLogic {
     return enableEvent
         .where((element) =>
             element.runtimeType == event.runtimeType)
-        .isNotEmpty;         
+        .isNotEmpty;
   }
 
   Future<bool> onClickPiece(BasicPiece piece,
@@ -111,11 +123,11 @@ mixin PlayerInfoLogic {
       logD("onClickGlodenPiece $piece");
       return false;
     }
-    Completer<bool> clickComsumePieceCompleter = Completer();
+    Completer<bool> clickComsumePieceCompleter =
+        Completer();
     final enablePlaceNodes =
         piece.GetNodesEnablePlaceNewPiece(gameController);
-    logD(
-        "enablePlaceNodes ${enablePlaceNodes.length}");
+    logD("enablePlaceNodes ${enablePlaceNodes.length}");
 
     List<BaseGameEvent> clickPieceNextEvents = [];
     enablePlaceNodes.forEach((element) {
@@ -166,7 +178,8 @@ mixin PlayerInfoLogic {
     final movedata = piece.BuildMoveAction(gameController);
     clickPieceNextEvents.addAll(movedata.events);
     movedata.completer.future.then((value) {
-        buildOnMoveEvent(this, value, piece, gameController)();
+      buildOnMoveEvent(
+          this, value, piece, gameController)();
     });
 
     final attackdata = piece.Attack(gameController);
