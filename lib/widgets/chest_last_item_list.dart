@@ -22,7 +22,7 @@ class ChestLastItemListState extends State<ChestLastItemList> {
         final comsumePiece = await widget.info.nextSkipCallback?.call() ?? false;
         if (comsumePiece) {
           
-          context.game.nextPlayer();
+          // context.game.nextPlayer();
         }
       }, child: Container(child: Text("Skip"),),),);
     },

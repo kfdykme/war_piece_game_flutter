@@ -46,7 +46,7 @@ class ChestRandomInfoState extends State<ChestRandomInfo> {
     return GestureDetector(onTap: () async  {
       final comsumePiece =  await piece.nextClickCallback?.call() ?? false;
       if (comsumePiece) {
-        context.game.nextPlayer();
+        // context.game.nextPlayer();
       }
       logD("EventLoop on pay piece $comsumePiece");
     },child: Container(

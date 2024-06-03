@@ -142,6 +142,14 @@ BaseGameEvent? StringToBaseGameEvent(
       ControlEvent controlEvent = ControlEvent();
       controlEvent.nodeId = maps['nodeId'];
       event = controlEvent;
+      event.completer.future.then((value) {
+        final player =
+            gameController.GetPlayerById(event!.playerId);
+        final safePiece =
+            player.GetPieceByIndex(event.pieceId);
+        PlayerInfoLogic.buildOnControllEvent(
+            player, value, safePiece!, gameController)();
+      });
     } else if (type == GameEventType.recuit) {
       RecruitPieceEvent recruitPieceEvent =
           RecruitPieceEvent();
@@ -176,6 +184,15 @@ BaseGameEvent? StringToBaseGameEvent(
           .first;
 
       event = pieceAttackEvent;
+      
+      event.completer.future.then((value) {
+        final player =
+            gameController.GetPlayerById(event!.playerId);
+        final safePiece =
+            player.GetPieceByIndex(event.pieceId);
+        PlayerInfoLogic.buildOnAttackEvent(
+            player, value, safePiece!, gameController)();
+      });
     } else if (type == GameEventType.onPlayerStart) {
       OnPlayerTurnStartEvent onPlayerTurnStartEvent =
           OnPlayerTurnStartEvent();
@@ -183,6 +200,9 @@ BaseGameEvent? StringToBaseGameEvent(
     } else if (type == GameEventType.skip) {
       SkipEvent skipEvent = SkipEvent();
       event = skipEvent;
+      event.completer.future.then((value) {
+        print("TODO SkipEvent");
+      });
     } else {
       gameController
           .logE("StringToBaseGameEvent null $type");

@@ -97,7 +97,58 @@ mixin PlayerInfoLogic {
       bool value,
       BasicPiece piece,
       GameController gameController) {
-        
+    final clickComsumePieceCompleter = Completer<bool>();
+    final skipEvent = SkipEvent();
+    skipEvent.playerId = player.playerId;
+    skipEvent.completer = clickComsumePieceCompleter;
+    skipEvent.pieceId = piece.index;
+    return () {
+      if (value) {
+        player.comsumePiece(piece);
+        player.cancelOtherAllClickableEvent(gameController);
+        player.notifyUI();
+      }
+      if (piece.CanAfterAttack()) {
+        final pieceAttackData =
+            piece.OnAfterAttack(gameController);
+        final List<BaseGameEvent> afterEvents = [];
+        afterEvents.addAll(pieceAttackData.events);
+        pieceAttackData.completer.future.then((value) {
+          player
+              .cancelOtherAllClickableEvent(gameController);
+          player.notifyUI();
+          clickComsumePieceCompleter.safeComplete(true);
+        });
+        skipEvent.pieceId = -1;
+        skipEvent.completer = pieceAttackData.completer;
+        afterEvents.add(skipEvent);
+        player.nextSkipCallback = player.buildNextSkipCall(
+            gameController, piece, skipEvent);
+
+        player.enableEvent.clear();
+        player.enableEvent.addAll(afterEvents);
+
+        player.OnPlayerTurn();
+      } else {
+        clickComsumePieceCompleter.safeComplete(value);
+      }
+    };
+  }
+
+  static Function buildOnControllEvent(
+      PlayerInfoLogic player,
+      bool value,
+      BasicPiece piece,
+      GameController gameController) {
+    final clickComsumePieceCompleter = Completer<bool>();
+    return () {
+      if (value) {
+        player.comsumePiece(piece);
+        player.cancelOtherAllClickableEvent(gameController);
+        player.notifyUI();
+      }
+      clickComsumePieceCompleter.safeComplete(value);
+    };
   }
 
   void enableTurnStartEvent(GameController gameController) {
@@ -185,56 +236,18 @@ mixin PlayerInfoLogic {
     final attackdata = piece.Attack(gameController);
     clickPieceNextEvents.addAll(attackdata.events);
     attackdata.completer.future.then((value) {
-      if (value) {
-        comsumePiece(piece);
-        cancelOtherAllClickableEvent(gameController);
-        notifyUI();
-      }
-      if (piece.CanAfterAttack()) {
-        final pieceAttackData =
-            piece.OnAfterAttack(gameController);
-        final List<BaseGameEvent> afterEvents = [];
-        afterEvents.addAll(pieceAttackData.events);
-        pieceAttackData.completer.future.then((value) {
-          cancelOtherAllClickableEvent(gameController);
-          notifyUI();
-          clickComsumePieceCompleter.safeComplete(true);
-        });
-        skipEvent.pieceId = -1;
-        skipEvent.completer = pieceAttackData.completer;
-        afterEvents.add(skipEvent);
-        nextSkipCallback = buildNextSkipCall(
-            gameController, piece, skipEvent);
-
-        enableEvent.clear();
-        enableEvent.addAll(afterEvents);
-
-        OnPlayerTurn();
-      } else {
-        clickComsumePieceCompleter.safeComplete(value);
-      }
+      buildOnAttackEvent(
+          this, value, piece, gameController)();
     });
 
     final controlData = piece.Control(gameController);
     clickPieceNextEvents.addAll(controlData.events);
-    controlData.completer.future.then((value) {
-      if (value) {
-        comsumePiece(piece);
-        cancelOtherAllClickableEvent(gameController);
-        notifyUI();
-      }
-      clickComsumePieceCompleter.safeComplete(value);
-    });
+    controlData.completer.future.then((value) {});
 
     final skillData = piece.Control(gameController);
     clickPieceNextEvents.addAll(skillData.events);
     skillData.completer.future.then((value) {
-      if (value) {
-        comsumePiece(piece);
-        cancelOtherAllClickableEvent(gameController);
-        notifyUI();
-      }
-      clickComsumePieceCompleter.safeComplete(value);
+      buildOnControllEvent(this, value, piece, gameController)();
     });
 
     notifyUI();
