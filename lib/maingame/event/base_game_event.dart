@@ -10,7 +10,6 @@ import 'package:warx_flutter/maingame/piece/basic_piece.dart';
 import 'package:warx_flutter/maingame/player/player_info_logic.ext.dart';
 import 'package:warx_flutter/util/log.object.extension.dart';
 
-
 enum GameEventType {
   unknown,
   click,
@@ -22,6 +21,7 @@ enum GameEventType {
   attack,
   onPlayerStart
 }
+
 class BaseGameEvent {
   int playerId = 0;
   int pieceId = 0;
@@ -36,11 +36,9 @@ class BaseGameEvent {
   }
 }
 
-class OnClickPieceEvent extends BaseGameEvent{
-  
-}
+class OnClickPieceEvent extends BaseGameEvent {}
 
-class RecruitPieceEvent extends BaseGameEvent { 
+class RecruitPieceEvent extends BaseGameEvent {
   int targetPieceId = 0;
 }
 
@@ -48,20 +46,16 @@ class ArragePieceEvent extends BaseGameEvent {
   int nodeId = 0;
 }
 
-class SkipEvent extends BaseGameEvent {
-  
-}
+class SkipEvent extends BaseGameEvent {}
 
 class ControlEvent extends BaseGameEvent {
   int nodeId = 0;
 }
 
-class OnPlayerTurnStartEvent extends BaseGameEvent {
-  
-}
+class OnPlayerTurnStartEvent extends BaseGameEvent {}
 
 String BaseGameEventToString(BaseGameEvent baseGameEvent) {
-  Map<String,dynamic> maps = {};
+  Map<String, dynamic> maps = {};
   maps['playerId'] = baseGameEvent.playerId;
   maps['pieceId'] = baseGameEvent.pieceId;
   // maps['completerId'] = EventCompleter.GetCompleterId(baseGameEvent.completer);
@@ -92,14 +86,16 @@ String BaseGameEventToString(BaseGameEvent baseGameEvent) {
     maps['type'] = GameEventType.onPlayerStart.index;
   }
 
-
-  if(kDebugMode) {
-    maps['runtimeType'] = baseGameEvent.runtimeType.toString();
+  if (kDebugMode) {
+    maps['runtimeType'] =
+        baseGameEvent.runtimeType.toString();
   }
   return jsonEncode(maps);
 }
 
-BaseGameEvent? StringToBaseGameEvent(String baseGameEventString,GameController gameController) {
+BaseGameEvent? StringToBaseGameEvent(
+    String baseGameEventString,
+    GameController gameController) {
   try {
     final maps = jsonDecode(baseGameEventString);
     final typeInt = maps['type'] as int;
@@ -108,54 +104,88 @@ BaseGameEvent? StringToBaseGameEvent(String baseGameEventString,GameController g
     // final complter = EventCompleter.GetCompleterById<bool>(completerId);
     BaseGameEvent? event;
     if (type == GameEventType.click) {
-      OnClickPieceEvent onClickPieceEvent = OnClickPieceEvent();
+      OnClickPieceEvent onClickPieceEvent =
+          OnClickPieceEvent();
       event = onClickPieceEvent;
-    } else if(type == GameEventType.arrage) {
-      ArragePieceEvent arragePieceEvent = ArragePieceEvent();
+    } else if (type == GameEventType.arrage) {
+      ArragePieceEvent arragePieceEvent =
+          ArragePieceEvent();
       arragePieceEvent.nodeId = maps['nodeId'];
       event = arragePieceEvent;
     } else if (type == GameEventType.move) {
       PieceMoveEvent pieceMoveEvent = PieceMoveEvent();
       final originNodeId = maps['originNode'];
       final targetNodeId = maps['targetNode'];
-      pieceMoveEvent.originNode = gameController.map.nodes.entries.where((element) => element.value.id == originNodeId ).first.value;
-      pieceMoveEvent.targetNode = gameController.map.nodes.entries.where((element) => element.value.id == targetNodeId ).first.value;
+      pieceMoveEvent.originNode = gameController
+          .map.nodes.entries
+          .where(
+              (element) => element.value.id == originNodeId)
+          .first
+          .value;
+      pieceMoveEvent.targetNode = gameController
+          .map.nodes.entries
+          .where(
+              (element) => element.value.id == targetNodeId)
+          .first
+          .value;
       event = pieceMoveEvent;
       event.completer.future.then((value) {
-        
-          final player = gameController.GetPlayerById(event!.playerId);
-          
-    final safePiece = player.GetPieceByIndex(event.pieceId);
-        PlayerInfoLogic.buildOnMoveEvent(player, value, safePiece!, gameController)();
+        final player =
+            gameController.GetPlayerById(event!.playerId);
+
+        final safePiece =
+            player.GetPieceByIndex(event.pieceId);
+        PlayerInfoLogic.buildOnMoveEvent(
+            player, value, safePiece!, gameController)();
       });
     } else if (type == GameEventType.control) {
       ControlEvent controlEvent = ControlEvent();
       controlEvent.nodeId = maps['nodeId'];
       event = controlEvent;
     } else if (type == GameEventType.recuit) {
-      RecruitPieceEvent recruitPieceEvent = RecruitPieceEvent();
-      recruitPieceEvent.targetPieceId = maps['targetPieceId'];
+      RecruitPieceEvent recruitPieceEvent =
+          RecruitPieceEvent();
+      recruitPieceEvent.targetPieceId =
+          maps['targetPieceId'];
       event = recruitPieceEvent;
     } else if (type == GameEventType.attack) {
-      PieceAttackEvent pieceAttackEvent = PieceAttackEvent();
-      pieceAttackEvent.enemyNode = gameController.map.nodes.entries.where((element) => element.value.id == maps['enemyNode'] ).first.value;
-      // pieceAttackEvent.attacker = 
-      final pieces = List.from([gameController.playerA,gameController.playerB]).fold<List<BasicPiece>>(List.empty(growable: true), (previousValue, element) {
+      PieceAttackEvent pieceAttackEvent =
+          PieceAttackEvent();
+      pieceAttackEvent.enemyNode = gameController
+          .map.nodes.entries
+          .where((element) =>
+              element.value.id == maps['enemyNode'])
+          .first
+          .value;
+      // pieceAttackEvent.attacker =
+      final pieces = List.from([
+        gameController.playerA,
+        gameController.playerB
+      ]).fold<List<BasicPiece>>(List.empty(growable: true),
+          (previousValue, element) {
         previousValue.addAll(element.selectAbleItem);
         return previousValue;
       });
-      pieceAttackEvent.attacker = pieces.where((element) => element.index == maps['attacker']).first;
-      pieceAttackEvent.attacker = pieces.where((element) => element.index == maps['enemy']).first;  
+      pieceAttackEvent.attacker = pieces
+          .where((element) =>
+              element.index == maps['attacker'])
+          .first;
+      pieceAttackEvent.attacker = pieces
+          .where(
+              (element) => element.index == maps['enemy'])
+          .first;
 
       event = pieceAttackEvent;
     } else if (type == GameEventType.onPlayerStart) {
-      OnPlayerTurnStartEvent onPlayerTurnStartEvent = OnPlayerTurnStartEvent();
+      OnPlayerTurnStartEvent onPlayerTurnStartEvent =
+          OnPlayerTurnStartEvent();
       event = onPlayerTurnStartEvent;
     } else if (type == GameEventType.skip) {
       SkipEvent skipEvent = SkipEvent();
       event = skipEvent;
     } else {
-      gameController.logE("StringToBaseGameEvent null $type");
+      gameController
+          .logE("StringToBaseGameEvent null $type");
     }
 
     event?.playerId = maps['playerId'] as int;
