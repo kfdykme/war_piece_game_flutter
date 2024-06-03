@@ -28,6 +28,8 @@ class BaseGameEvent {
   int type = 0;
   Completer<bool> completer = Completer();
 
+  bool isFromNetwork = false;
+
   bool isFromPlayerEvent = false;
   @override
   String toString() {
@@ -211,6 +213,7 @@ BaseGameEvent? StringToBaseGameEvent(
     event?.playerId = maps['playerId'] as int;
     event?.pieceId = maps['pieceId'] as int;
     // event?.completer = complter;
+    event?.isFromNetwork = true;
     return event;
   } catch (e) {
     baseGameEventString.logE('StringToBaseGameEvent $e');

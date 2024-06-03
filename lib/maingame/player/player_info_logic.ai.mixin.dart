@@ -105,10 +105,10 @@ class PlayerInfoAi extends PlayerInfo {
       event.playerId = id; 
       gameController.OnEvent(event);
     } else {
-      ComsupeEvent();
-      gameController.OnEvent(randomAiEvent);
-      cancelOtherAllClickableEvent(gameController);
-      notifyUI();
+      // ComsupeEvent();
+      // gameController.OnEvent(randomAiEvent);
+      // cancelOtherAllClickableEvent(gameController);
+      // notifyUI();
     }
   }
 

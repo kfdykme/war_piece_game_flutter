@@ -72,6 +72,9 @@ class GameController {
       _currentPlayer?.turnCount++;
     }
   }
+  
+
+  List<BaseGameEvent> gameEventLog = [];
 
   List<dynamic> gameEventStack = [];
 
@@ -139,12 +142,14 @@ class GameController {
   Future<void> _InnerOnEvent(BaseGameEvent event) async {
     final player = GetPlayerById(event.playerId);
     
+    gameEventLog.add(event);
     if (player is! PlayerInfoNetwork) {
       if (event is OnPlayerTurnStartEvent) {
         logD("why");
       }
       await networkBase.OnEvent(event, player);
     }
+    
 
     logD("EventLoop OnEvent $event ");
     if (event is OnPlayerTurnStartEvent) {
@@ -153,8 +158,7 @@ class GameController {
       currentTurnPlayer = player;
       player.OnPlayerTurn();
       player.notifyRefresh();
-      gameEventStack.add(event);
-      
+      gameEventStack.add(event); 
       return;
     }
 
